@@ -13,7 +13,7 @@ extension Project {
                     name: "\(name)",
                     product: .app,
                     bundleId: "\(bundleId).app",
-                    infoPlist: .default,
+                    infoPlist: .file(path: "Sources/Info.plist"),
                     dependencies: [
                         .feature(.scrap),
                         .feature(.search)
