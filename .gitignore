@@ -1,0 +1,77 @@
+# Tuist generated files
+/.tuist-cache/
+/DerivedData/
+/*.xcodeproj/
+/*.xcworkspace/
+/.swiftpm/xcode/
+/.idea/
+/.build/
+/.swiftpm/
+/xcuserdata/
+/*.xcscmblueprint
+Derived/
+
+# User-specific files
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+*.xcuserstate
+
+# Temporary files
+*.tmp
+*.swp
+*.lock
+
+# Swift Package Manager
+/.build/
+.build/
+# Add Xcode workspace for Swift Packages
+*.xcodeproj/*/xcuserdata/
+*.xcodeproj/*/project.xcworkspace/
+.xcworkspace/xcuserdata/
+# SPM Packages
+Packages/
+# Package.resolved
+Package.resolved
+# Xcode 11
+.swiftpm/xcode/package.pins
+
+# CocoaPods
+Pods/
+# Add this line if you want to avoid checking in source code from Pods/ directory
+# Pods/**/*
+# CocoaPods generated files
+*.xcworkspace
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots
+fastlane/test_output
+fastlane/report.html
+
+# Firebase
+google-services.json
+GoogleService-Info.plist
+
+# Xcode specific files
+*.xccheckout
+*.xcuserstate
+*.xcscmblueprint
+*.xcworkspace
+*.playground
+*.xcodeproj
+*.xcassets
+
+# Tuist specific files
+/Derived/
+/.build/
+.swiftpm/
+/Tuist/Config.swift
+
+# Other
+.idea/
+.DS_Store
