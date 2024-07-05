@@ -7,4 +7,3 @@ let project = Project.makeFeatureModule(
         .feature(.common)
     ]
 )
-

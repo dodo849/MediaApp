@@ -1,4 +1,4 @@
 import ProjectDescription
 import ProjectDescriptionHelpers
 
-let project = Project.makeCoreModule(.cache)
+let project = Project.makeNetworkModule(.common)

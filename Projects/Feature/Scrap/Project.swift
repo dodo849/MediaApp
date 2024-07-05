@@ -4,6 +4,6 @@ import ProjectDescriptionHelpers
 let project = Project.makeFeatureModule(
     .scrap,
     dependencies: [
-        .feature(.common)
+        .feature(.common),
     ]
 )

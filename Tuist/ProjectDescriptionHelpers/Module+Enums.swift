@@ -11,7 +11,12 @@ public enum Module {
     }
     
     public enum Network: String, CaseIterable {
+        case common = "Common"
         case media = "Media"
+    }
+    
+    public enum DI: String, CaseIterable {
+        case navigation = "Navigation"
     }
     
     public enum ThirdParty: String {

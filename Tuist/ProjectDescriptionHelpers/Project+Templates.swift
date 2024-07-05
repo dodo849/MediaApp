@@ -2,7 +2,7 @@ import ProjectDescription
 
 extension Project {
     public static let deployTarget = 15.0
-    public static let bundleId = "com.meadia.app"
+    public static let bundleId = "com.meadia"
     
     public static func makeMainApp(name: String) -> Project {
         return Project(
@@ -16,7 +16,8 @@ extension Project {
                     infoPlist: .file(path: "Sources/Info.plist"),
                     dependencies: [
                         .feature(.scrap),
-                        .feature(.search)
+                        .feature(.search),
+                        .di(.navigation)
                     ] + uiDependencies
                 ),
                 makeTarget(
@@ -39,13 +40,16 @@ extension Project {
             settings: .settings(.base),
             targets: [
                 makeTarget(
-                    name: "\(name)",
+                    name: "\(name)Feature",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).feature",
                     infoPlist: .default,
                     hasResource: true,
                     dependencies: dependencies + uiDependencies
                 ),
+            ],
+            resourceSynthesizers: [
+                .custom(name: "Assets", parser: .assets, extensions: ["xcassets"]),
             ]
         )
     }
@@ -60,7 +64,7 @@ extension Project {
             settings: .settings(.base),
             targets: [
                 makeTarget(
-                    name: "\(name)",
+                    name: "\(name)Core",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).core",
                     dependencies: dependencies
@@ -79,10 +83,29 @@ extension Project {
             settings: .settings(.network),
             targets: [
                 makeTarget(
-                    name: "\(name)",
+                    name: "\(name)Network",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).network",
                     dependencies: dependencies
+                ),
+            ]
+        )
+    }
+    
+    public static func makeDIModule(
+        _ target: Module.DI,
+        dependencies: [TargetDependency] = []
+    ) -> Project {
+        let name = target.rawValue
+        return Project(
+            name: "\(name)",
+            settings: .settings(.base),
+            targets: [
+                makeTarget(
+                    name: "\(name)DI",
+                    product: .framework,
+                    bundleId: "\(bundleId).\(name).di",
+                    dependencies: dependencies + uiDependencies
                 ),
             ]
         )
@@ -119,6 +142,7 @@ extension Project {
 extension Project {
     static let dataInfoPlist: [String: Plist.Value] = [
         "API_BASE_URL": "$(API_BASE_URL)",
+        "KAKAO_REST_API_KEY": "$(KAKAO_REST_API_KEY)",
     ]
 }
 
