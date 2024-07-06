@@ -18,6 +18,7 @@ public struct SearchFeature {
     public struct State: Equatable {
         public var searchKeyword: String = ""
         public var media: [MediaModel] = []
+        public var selectedContent: [MediaModel] = []
         
         public init() { }
     }
@@ -27,6 +28,8 @@ public struct SearchFeature {
         case searchKeywordChanged(String)
         case searchMedia
         case addMedia([MediaModel])
+        case selectContent(MediaModel)
+        case deselectContent(MediaModel)
     }
     
     // MARK: Dependency
@@ -70,6 +73,14 @@ public struct SearchFeature {
             case .addMedia(let media):
                 state.media.removeAll()
                 state.media.append(contentsOf: media)
+                return .none
+                
+            case .selectContent(let content):
+                state.selectedContent.append(content)
+                return .none
+                
+            case .deselectContent(let content):
+                state.selectedContent.removeAll(where: { $0.id == content.id })
                 return .none
             }
         }

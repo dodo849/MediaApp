@@ -38,12 +38,34 @@ public struct SearchView: View {
                         ],
                         spacing: SearchView.gridSpacing
                     ) {
-                        ForEach(store.media) {
-                            KFImage(URL(string: $0.thumbnailUrl)!)
-                                .fade(duration: 0.5)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .cornerRadius(4)
+                        ForEach(store.media) { content in
+                            ZStack {
+                                KFImage(URL(string: content.thumbnailUrl)!)
+                                    .fade(duration: 0.5)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fit)
+                                    .cornerRadius(SearchView.imageRadius)
+                                    .onTapGesture {
+                                        if store.selectedContent.contains(content) {
+                                            store.send(.deselectContent(content))
+                                        } else {
+                                            store.send(.selectContent(content))
+                                        }
+                                    }
+                                    .overlay(
+                                        RoundedRectangle(cornerRadius: SearchView.imageRadius)
+                                            .stroke(
+                                                store.selectedContent.contains(content)
+                                                ? Color.blue
+                                                : Color.clear,
+                                                lineWidth: 2
+                                            )
+                                    )
+                                
+                                if store.selectedContent.contains(content) {
+                                    checkedImageOverlay
+                                }
+                            }
                         }
                     }
                 }
@@ -51,11 +73,28 @@ public struct SearchView: View {
             }
         }
     }
+    
+    private var checkedImageOverlay: some View {
+        VStack(alignment: .trailing) {
+            HStack {
+                Spacer()
+                Image(systemName: "checkmark.circle.fill")
+                    .resizable()
+                    .frame(width: 24, height: 24)
+                    .foregroundColor(.blue)
+                    .background(Color.white)
+                    .clipShape(Circle())
+                    .padding(SearchView.gridSpacing)
+            }
+            Spacer()
+        }
+    }
 }
 
 // MARK: - View Contant
 extension SearchView {
     static let gridSpacing: CGFloat = 8
+    static let imageRadius: CGFloat = 4
 }
 
 // MARK: - Preview
