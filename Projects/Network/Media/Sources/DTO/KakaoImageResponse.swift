@@ -8,23 +8,23 @@
 import Foundation
 
 public struct KakaoImageResponse: Decodable {
-    let meta: Meta
-    let documents: [Document]
+    public let meta: Meta
+    public let documents: [Document]
     
     public struct Meta: Decodable {
-        let total_count: Int
-        let pageable_count: Int
-        let is_end: Bool
+        public let total_count: Int
+        public let pageable_count: Int
+        public let is_end: Bool
     }
 
-    public struct Document: Decodable {
-        let collection: String
-        let thumbnail_url: String
-        let image_url: String
-        let width: Int
-        let height: Int
-        let display_sitename: String
-        let doc_url: String
-        let datetime: String // ISO 8601 format
+    public struct Document: Decodable, Equatable {
+        public let collection: String
+        public let thumbnail_url: String
+        public let image_url: String
+        public let width: Int
+        public let height: Int
+        public let display_sitename: String
+        public let doc_url: String
+        public let datetime: String // ISO 8601 format
     }
 }

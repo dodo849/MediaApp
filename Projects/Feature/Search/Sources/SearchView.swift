@@ -17,6 +17,25 @@ public struct SearchView: View {
     }
     
     public var body: some View {
-        Text("Search")
+        WithPerceptionTracking {
+            VStack {
+                Text("Search View")
+                TextField(
+                    "검색어를 입력해주세요",
+                    text: $store.searchKeyword.sending(\.searchKeywordChanged)
+                )
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                Text("text \(store.images)")
+            }
+        }
     }
+}
+
+#Preview {
+    SearchView(
+        store: Store(
+            initialState: SearchFeature.State()) {
+                SearchFeature()
+            }
+    )
 }

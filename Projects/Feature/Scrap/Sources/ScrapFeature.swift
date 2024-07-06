@@ -36,7 +36,6 @@ public struct ScrapFeature {
     }
     
     // MARK: Dependency
-    @Dependency(\.kakaoImageRepository) var kakaoImageRepository
     
     // MARK: Initializer
     public init() { }

@@ -20,9 +20,8 @@ public struct KakaoImageRepository {
         query: String,
         sort: String = "accuracy",
         page: Int = 1,
-        size: Int = 20,
-        completion: @escaping (Result<KakaoImageResponse, Error>) -> Void
-    ) {
+        size: Int = 20
+    ) async throws -> KakaoImageResponse {
         assert((1...50).contains(page), "Page must be between 1 and 50")
         assert((1...80).contains(size), "Size must be between 1 and 80")
         
@@ -38,7 +37,7 @@ public struct KakaoImageRepository {
             "Authorization": "KakaoAK \(apiKey)"
         ]
         
-        AF.request(
+        let response = try await AF.request(
             requestURL,
             method: .get,
             parameters: parameters,
@@ -46,15 +45,9 @@ public struct KakaoImageRepository {
             headers: headers
         )
         .validate()
-        .responseDecodable(of: KakaoImageResponse.self) { response in
-            print("response \(response)")
-            switch response.result {
-            case .success(let data):
-                completion(.success(data))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        .serializingDecodable(KakaoImageResponse.self).value
+        
+        return response
     }
 }
 
