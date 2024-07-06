@@ -9,16 +9,18 @@ import CommonNetwork
 
 import Alamofire
 
-struct KakaoVideoRepository {
-    private let requestURL = InfoConfig.baseURL + "\vclip"
-    private let apiKey = InfoConfig.kakaoRestKey
+public struct KakaoVideoRepository {
+    private let requestURL = "\(InfoConfig.baseURL.get)/vclip"
+    private let apiKey = InfoConfig.kakaoRestKey.get
+    
+    public init() { }
     
     // 동영상 검색 요청을 보내는 함수
-    func searchVideos(
+    public func searchVideos(
         query: String,
         sort: String = "accuracy",
-        page: Int? =  1,
-        size: Int? = 10,
+        page: Int =  1,
+        size: Int = 10,
         completion: @escaping (Result<KakaoVideoResponse, Error>) -> Void
     ) {
         assert((1...15).contains(page), "Page must be between 1 and 15")
@@ -26,24 +28,33 @@ struct KakaoVideoRepository {
         
         let parameters: [String: Any] = [
             "query": query,
-            "sort": sort
-            "page": page
+            "sort": sort,
+            "page": page,
             "size": size
         ]
         
         let headers: HTTPHeaders = [
+            "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "KakaoAK \(apiKey)"
         ]
         
-        AF.request(baseURL, method: .get, parameters: parameters, headers: headers)
-            .validate()
-            .responseDecodable(of: KakaoVideoResponse.self) { response in
-                switch response.result {
-                case .success(let data):
-                    completion(.success(data))
-                case .failure(let error):
-                    completion(.failure(error))
-                }
+        print("headers \(headers)")
+        
+        AF.request(
+            requestURL,
+            method: .get,
+            parameters: parameters,
+            encoding: URLEncoding.default,
+            headers: headers
+        )
+        .validate()
+        .responseDecodable(of: KakaoVideoResponse.self) { response in
+            switch response.result {
+            case .success(let data):
+                completion(.success(data))
+            case .failure(let error):
+                completion(.failure(error))
             }
+        }
     }
 }

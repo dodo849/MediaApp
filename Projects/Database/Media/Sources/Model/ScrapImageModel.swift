@@ -9,7 +9,7 @@ import Foundation
 
 import RealmSwift
 
-class ScrapImageModel: Object {
+public class ScrapImageModel: Object {
     @Persisted var id: ObjectId
     @Persisted var collection: String
     @Persisted var thumbnailURL: String
@@ -20,7 +20,7 @@ class ScrapImageModel: Object {
     @Persisted var docURL: String
     @Persisted var datetime: Date
     
-    convenience init(
+    public convenience init(
         id: ObjectId = ObjectId.generate(),
         collection: String,
         thumbnailURL: String,

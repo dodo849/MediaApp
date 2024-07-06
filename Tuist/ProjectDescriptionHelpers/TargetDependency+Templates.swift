@@ -28,6 +28,15 @@ public extension TargetDependency {
         )
     }
     
+    static func database(
+        _ target: Module.Database
+    ) -> TargetDependency {
+        return .project(
+            target: "\(target.rawValue)Database",
+            path: .relativeToRoot("Projects/Database/\(target.rawValue)")
+        )
+    }
+    
     static func di(
         _ target: Module.DI
     ) -> TargetDependency {
@@ -38,8 +47,9 @@ public extension TargetDependency {
     }
     
     static func thirdParty(
-        _ target: Module.ThirdParty
+        _ target: Module.ThirdParty,
+        condition: PlatformCondition? = nil
     ) -> TargetDependency {
-        return .external(name: "\(target.rawValue)")
+        return .external(name: "\(target.rawValue)", condition: condition)
     }
 }

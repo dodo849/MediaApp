@@ -15,7 +15,7 @@ public struct SearchFeature {
         public init() { }
     }
     
-    public enum Action {
+    public enum Action: Equatable {
     }
     
     // MARK: Dependency

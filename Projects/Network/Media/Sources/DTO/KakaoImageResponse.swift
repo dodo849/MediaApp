@@ -7,24 +7,24 @@
 
 import Foundation
 
-struct KakaoImageResponse: Decodable {
+public struct KakaoImageResponse: Decodable {
     let meta: Meta
     let documents: [Document]
-}
+    
+    public struct Meta: Decodable {
+        let total_count: Int
+        let pageable_count: Int
+        let is_end: Bool
+    }
 
-struct Meta: Decodable {
-    let total_count: Int
-    let pageable_count: Int
-    let is_end: Bool
-}
-
-struct Document: Decodable {
-    let collection: String
-    let thumbnail_url: String
-    let image_url: String
-    let width: Int
-    let height: Int
-    let display_sitename: String
-    let doc_url: String
-    let datetime: String // ISO 8601 format
+    public struct Document: Decodable {
+        let collection: String
+        let thumbnail_url: String
+        let image_url: String
+        let width: Int
+        let height: Int
+        let display_sitename: String
+        let doc_url: String
+        let datetime: String // ISO 8601 format
+    }
 }

@@ -12,7 +12,7 @@ import SearchFeature
 
 import ComposableArchitecture
 
-@available(*, deprecated, "16.0 이하 버전과의 호환성을 위해 TCA Navigation tree-based 방식으로 전환했습니다. 화면전환은 루트 컴포넌트가 아닌 각 뷰에서 담당합니다.")
+@available(*, deprecated, message: "16.0 이하 버전과의 호환성을 위해 TCA Navigation tree-based 방식으로 전환했습니다. 화면전환은 루트 컴포넌트가 아닌 각 뷰에서 담당합니다.")
 public struct RootNavigationView<Content: View>: View {
     @Perception.Bindable var store: StoreOf<NavigationFeature>
     
@@ -92,7 +92,7 @@ public struct NavigationFeature {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .destination(.presented(.scrap(.presentSearch))):
+            case .destination(_):
                 state.destination = .search(.init())
                 return .none
             case .presentScrap:

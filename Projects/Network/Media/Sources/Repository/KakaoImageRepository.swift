@@ -8,16 +8,19 @@
 import CommonNetwork
 
 import Alamofire
+import Dependencies
 
 public struct KakaoImageRepository {
-    private let requestURL = InfoConfig.baseURL + "\image"
-    private let apiKey = InfoConfig.kakaoRestKey
+    private let requestURL = "\(InfoConfig.baseURL.get)/image"
+    private let apiKey = InfoConfig.kakaoRestKey.get
     
-    func searchImages(
+    public init() { }
+    
+    public func searchImages(
         query: String,
         sort: String = "accuracy",
         page: Int = 1,
-        size: Int = 80,
+        size: Int = 20,
         completion: @escaping (Result<KakaoImageResponse, Error>) -> Void
     ) {
         assert((1...50).contains(page), "Page must be between 1 and 50")
@@ -31,6 +34,7 @@ public struct KakaoImageRepository {
         ]
         
         let headers: HTTPHeaders = [
+            "Content-Type": "application/x-www-form-urlencoded",
             "Authorization": "KakaoAK \(apiKey)"
         ]
         
@@ -38,10 +42,12 @@ public struct KakaoImageRepository {
             requestURL,
             method: .get,
             parameters: parameters,
+            encoding: URLEncoding.queryString,
             headers: headers
         )
         .validate()
         .responseDecodable(of: KakaoImageResponse.self) { response in
+            print("response \(response)")
             switch response.result {
             case .success(let data):
                 completion(.success(data))
@@ -50,4 +56,16 @@ public struct KakaoImageRepository {
             }
         }
     }
+}
+
+// MARK: - Dependency
+private enum KakaoImageRepositoryKey: DependencyKey {
+    static let liveValue: KakaoImageRepository = KakaoImageRepository()
+}
+
+public extension DependencyValues {
+  var kakaoImageRepository: KakaoImageRepository {
+    get { self[KakaoImageRepositoryKey.self] }
+    set { self[KakaoImageRepositoryKey.self] = newValue }
+  }
 }

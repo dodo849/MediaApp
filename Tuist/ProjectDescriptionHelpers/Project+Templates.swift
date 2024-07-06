@@ -85,6 +85,8 @@ extension Project {
                     name: "\(name)Network",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).network",
+                    infoPlist: .extendingDefault(with: networkInfoPlist),
+                    hasResource: true,
                     dependencies: dependencies + netowrkDependencies
                 ),
             ]
@@ -98,7 +100,7 @@ extension Project {
         let name = target.rawValue
         return Project(
             name: "\(name)",
-            settings: .settings(.network),
+            settings: .settings(.base),
             targets: [
                 makeTarget(
                     name: "\(name)Database",
@@ -158,7 +160,7 @@ extension Project {
 
 // MARK: - Info.plist
 extension Project {
-    static let dataInfoPlist: [String: Plist.Value] = [
+    static let networkInfoPlist: [String: Plist.Value] = [
         "API_BASE_URL": "$(API_BASE_URL)",
         "KAKAO_REST_API_KEY": "$(KAKAO_REST_API_KEY)",
     ]
@@ -171,7 +173,8 @@ extension Project {
     ]
     
     static let netowrkDependencies: [TargetDependency] = [
-        .thirdParty(.alamofire)
+        .thirdParty(.alamofire),
+        .thirdParty(.swiftDependencies)
     ]
     
     static let databaseDependencies: [TargetDependency] = [

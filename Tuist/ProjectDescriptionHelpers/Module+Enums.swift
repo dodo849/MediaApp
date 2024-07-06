@@ -15,6 +15,11 @@ public enum Module {
         case media = "Media"
     }
     
+    public enum Database: String, CaseIterable {
+        case common = "Common"
+        case media = "Media"
+    }
+    
     public enum DI: String, CaseIterable {
         case navigation = "Navigation"
     }
@@ -22,6 +27,8 @@ public enum Module {
     public enum ThirdParty: String {
         case composableArchitecture = "ComposableArchitecture"
         case alamofire = "Alamofire"
+        case realm = "RealmSwift"
+        case swiftDependencies = "Dependencies"
     }
 
 }
