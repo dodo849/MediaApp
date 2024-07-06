@@ -8,6 +8,7 @@
 import CommonNetwork
 
 import Alamofire
+import Dependencies
 
 public struct KakaoVideoRepository {
     private let requestURL = "\(InfoConfig.baseURL.get)/vclip"
@@ -15,14 +16,12 @@ public struct KakaoVideoRepository {
     
     public init() { }
     
-    // 동영상 검색 요청을 보내는 함수
     public func searchVideos(
         query: String,
         sort: String = "accuracy",
-        page: Int =  1,
-        size: Int = 10,
-        completion: @escaping (Result<KakaoVideoResponse, Error>) -> Void
-    ) {
+        page: Int = 1,
+        size: Int = 10
+    ) async throws -> KakaoVideoResponse {
         assert((1...15).contains(page), "Page must be between 1 and 15")
         assert((1...30).contains(size), "Size must be between 1 and 30")
         
@@ -38,9 +37,7 @@ public struct KakaoVideoRepository {
             "Authorization": "KakaoAK \(apiKey)"
         ]
         
-        print("headers \(headers)")
-        
-        AF.request(
+        let response = try await AF.request(
             requestURL,
             method: .get,
             parameters: parameters,
@@ -48,13 +45,20 @@ public struct KakaoVideoRepository {
             headers: headers
         )
         .validate()
-        .responseDecodable(of: KakaoVideoResponse.self) { response in
-            switch response.result {
-            case .success(let data):
-                completion(.success(data))
-            case .failure(let error):
-                completion(.failure(error))
-            }
-        }
+        .serializingDecodable(KakaoVideoResponse.self).value
+        
+        return response
     }
+}
+
+// MARK: - Dependency
+private enum KakaoVideoRepositoryKey: DependencyKey {
+    static let liveValue: KakaoVideoRepository = KakaoVideoRepository()
+}
+
+public extension DependencyValues {
+  var kakaoVideoRepository: KakaoVideoRepository {
+    get { self[KakaoVideoRepositoryKey.self] }
+    set { self[KakaoVideoRepositoryKey.self] = newValue }
+  }
 }

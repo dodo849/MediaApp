@@ -8,22 +8,22 @@
 import Foundation
 
 public struct KakaoVideoResponse: Decodable {
-    let meta: Meta
-    let documents: [VideoDocument]
+    public let meta: Meta
+    public let documents: [VideoDocument]
     
     public struct Meta: Decodable {
-        let total_count: Int
-        let pageable_count: Int
-        let is_end: Bool
+        public let total_count: Int
+        public let pageable_count: Int
+        public let is_end: Bool
     }
 
     public struct VideoDocument: Decodable {
-        let title: String
-        let url: String
-        let datetime: String // ISO 8601 format
-        let thumbnail: String
-        let play_time: Int // seconds
-        let author: String
-        let description: String
+        public let title: String
+        public let url: String
+        public let datetime: String // ISO 8601 format
+        public let thumbnail: String
+        public let play_time: Int // seconds
+        public let author: String
+        public let description: String
     }
 }

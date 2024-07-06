@@ -8,6 +8,7 @@
 import OSLog
 
 import MediaNetwork
+import MediaDatabase
 
 import ComposableArchitecture
 
@@ -17,8 +18,8 @@ public struct SearchFeature {
     @ObservableState
     public struct State: Equatable {
         public var searchKeyword: String = ""
-        public var media: [MediaModel] = []
-        public var selectedContent: [MediaModel] = []
+        public var media: [SearchMediaContentModel] = []
+        public var selectedContent: [SearchMediaContentModel] = []
         
         public init() { }
     }
@@ -27,9 +28,9 @@ public struct SearchFeature {
     public enum Action {
         case searchKeywordChanged(String)
         case searchMedia
-        case addMedia([MediaModel])
-        case selectContent(MediaModel)
-        case deselectContent(MediaModel)
+        case addMedia([SearchMediaContentModel])
+        case selectContent(SearchMediaContentModel)
+        case deselectContent(SearchMediaContentModel)
     }
     
     // MARK: Dependency
@@ -38,6 +39,7 @@ public struct SearchFeature {
         category: "SearchFeature"
     )
     @Dependency(\.kakaoImageRepository) var kakaoImageRepository
+    @Dependency(\.persistenceImageRepository) var persistenceImageRepository
     
     // MARK: Initializer
     public init() { }
@@ -77,10 +79,26 @@ public struct SearchFeature {
                 
             case .selectContent(let content):
                 state.selectedContent.append(content)
+                switch content.contentType {
+                case .image:
+                    let persistenceModel: PersistenceScrapImageModel = MediaConverter
+                        .convert(content)
+                    persistenceImageRepository.saveScrapImage(persistenceModel)
+                case .video(let playTime):
+                    break
+                }
+                
                 return .none
                 
             case .deselectContent(let content):
                 state.selectedContent.removeAll(where: { $0.id == content.id })
+                switch content.contentType {
+                case .image:
+                    persistenceImageRepository
+                        .deleteScrapImage(byImageID: content.id)
+                case .video(let playTime):
+                    break
+                }
                 return .none
             }
         }

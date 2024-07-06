@@ -106,6 +106,7 @@ extension Project {
                     name: "\(name)Database",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).database",
+                    hasResource: true,
                     dependencies: dependencies + databaseDependencies
                 ),
             ]
@@ -178,6 +179,7 @@ extension Project {
     ]
     
     static let databaseDependencies: [TargetDependency] = [
-        .thirdParty(.realm)
+        .thirdParty(.realm),
+        .thirdParty(.swiftDependencies)
     ]
 }

@@ -40,7 +40,7 @@ public struct SearchView: View {
                     ) {
                         ForEach(store.media) { content in
                             ZStack {
-                                KFImage(URL(string: content.thumbnailUrl)!)
+                                KFImage(URL(string: content.thumbnailURL)!)
                                     .fade(duration: 0.5)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
@@ -78,7 +78,7 @@ public struct SearchView: View {
         VStack(alignment: .trailing) {
             HStack {
                 Spacer()
-                Image(systemName: "checkmark.circle.fill")
+                Image(systemName: "archivebox.circle.fill")
                     .resizable()
                     .frame(width: 24, height: 24)
                     .foregroundColor(.blue)
