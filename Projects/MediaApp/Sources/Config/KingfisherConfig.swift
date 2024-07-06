@@ -14,7 +14,7 @@ struct KingfisherConfig {
         // 캐시 설정
         let cache = ImageCache.default
         // 메모리 캐시 만료 시간 설정
-        cache.memoryStorage.config.expiration = .seconds(60 * 60) // 1시간 60 * 60
+        cache.memoryStorage.config.expiration = .seconds(60 * 10) // 10분
         // 디스크 캐시 만료 시간 설정
         cache.diskStorage.config.expiration = .days(7) // 7일
     }

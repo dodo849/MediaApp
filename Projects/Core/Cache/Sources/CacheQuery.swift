@@ -13,14 +13,14 @@ public enum CacheQueryError: Error {
 }
 
 public class CacheQuery {
-    private var cache = NSCache<NSString, NSData>()
+    private let cache = NSCache<NSString, NSData>()
     private var expiryDates = [NSString: Date]()
     private let cleanUpInterval: TimeInterval = 60
     private var timer: Timer?
     
     public static var shared = CacheQuery()
     
-    private init() { // 다양한 Config 받게 해도 좋을듯.
+    private init() {
         DispatchQueue.main.async {
             self.startCleanUpTimer()
         }
@@ -74,7 +74,7 @@ public class CacheQuery {
             let encoder = JSONEncoder()
             let encodedData = try encoder.encode(cacheEntry)
             self.cache.setObject(encodedData as NSData, forKey: nsKey)
-            self.expiryDates[nsKey] = expiryDate
+            self.expiryDates[nsKey] = expiryDate // FIXME: 가끔 접근 에러남
             
             return result
         }

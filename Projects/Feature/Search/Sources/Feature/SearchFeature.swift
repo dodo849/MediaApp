@@ -18,9 +18,10 @@ public struct SearchFeature {
     // MARK: State
     @ObservableState
     public struct State: Equatable {
-        public var searchKeyword: String = ""
-        public var media: [SearchMediaContentModel] = []
-        public var selectedContent: [SearchMediaContentModel] = []
+        var searchKeyword: String = ""
+        var media: [SearchMediaContentModel] = []
+        var selectedContent: [SearchMediaContentModel] = []
+        var lastPage: Int = 0
         
         public init() { }
     }
@@ -29,6 +30,7 @@ public struct SearchFeature {
     public enum Action {
         case searchKeywordChanged(String)
         case searchMedia
+        case loadMoreMedia
         case addMedia([SearchMediaContentModel])
         case selectContent(SearchMediaContentModel)
         case selectContents([SearchMediaContentModel])
@@ -62,11 +64,20 @@ public struct SearchFeature {
                     )
                 
             case .searchMedia:
+                state.media.removeAll()
+                state.lastPage = 0
+                return .send(.loadMoreMedia)
+                
+            case .loadMoreMedia:
+                state.lastPage += 1
                 let searchKeyword = state.searchKeyword
+                let targetPage = state.lastPage
+                print(targetPage)
                 return .run { send in
                     do {
                         let mediaModels = try await fetchMediaContent(
-                            query: searchKeyword
+                            query: searchKeyword,
+                            page: targetPage
                         )
                         await send(.addMedia(mediaModels))
                         
@@ -81,7 +92,6 @@ public struct SearchFeature {
                 }
                 
             case .addMedia(let media):
-                state.media.removeAll()
                 state.media.append(contentsOf: media)
                 return .none
                 
@@ -127,30 +137,32 @@ public struct SearchFeature {
     }
     
     func fetchMediaContent(
-        query: String
+        query: String,
+        page: Int
     ) async throws -> [SearchMediaContentModel] {
+        print(page)
         let imageCacheQuery = CacheQuery.shared.makeQuery(
             key: KakaoMediaFetchQueryKey.image(
                 keyword: query,
-                page: 1,
-                size: 10
+                page: page,
+                size: 20
             ),
             expiry: KakaoMediaFetchQueryKey.expiry
         ) {
             try await kakaoImageRepository
-                .searchImages(query: query)
+                .searchImages(query: query, page: page)
         }
         
         let videoCacheQuery = CacheQuery.shared.makeQuery(
             key: KakaoMediaFetchQueryKey.video(
                 keyword: query,
-                page: 1,
-                size: 10
+                page: page,
+                size: 20
             ),
             expiry: KakaoMediaFetchQueryKey.expiry
         ) {
             try await kakaoVideoRepository
-                .searchVideos(query: query)
+                .searchVideos(query: query, page: page)
         }
         
         // 병렬 처리

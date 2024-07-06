@@ -68,6 +68,11 @@ public struct SearchView: View {
                                     checkedImageOverlay
                                 }
                             }
+                            .onAppear {
+                                if content == store.media.last {
+                                    store.send(.loadMoreMedia)
+                                }
+                            }
                         }
                     }
                 }
