@@ -25,42 +25,44 @@ public struct ScrapView: View {
     
     public var body: some View {
         WithPerceptionTracking {
-            VStack {
-                Button {
-                    store.send(.presentSearchView)
-                } label: {
-                    Text("Show SearchView")
-                }
-                
-                LazyVGrid(
-                    columns: [
-                        GridItem(.flexible(), spacing: ScrapView.gridSpacing),
-                        GridItem(.flexible(), spacing: ScrapView.gridSpacing)
-                    ],
-                    spacing: ScrapView.gridSpacing
-                ) {
-                    ForEach(store.media) { content in
-                        KFImage(URL(string: content.thumbnailURL)!)
-                            .fade(duration: 0.5)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .cornerRadius(ScrapView.imageRadius)
+            ScrollView {
+                VStack {
+                    Button {
+                        store.send(.presentSearchView)
+                    } label: {
+                        Text("Show SearchView")
                     }
+                    
+                    LazyVGrid(
+                        columns: [
+                            GridItem(.flexible(), spacing: ScrapView.gridSpacing),
+                            GridItem(.flexible(), spacing: ScrapView.gridSpacing)
+                        ],
+                        spacing: ScrapView.gridSpacing
+                    ) {
+                        ForEach(store.media) { content in
+                            KFImage(URL(string: content.thumbnailURL)!)
+                                .fade(duration: 0.5)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .cornerRadius(ScrapView.imageRadius)
+                        }
+                    }
+                    
+                    NavigationLink(
+                        item: $store.scope(
+                            state: \.destination?.search,
+                            action: \.destination.search
+                        ),
+                        onNavigate: { _ in },
+                        destination: { destinationStore in
+                            SearchView(
+                                store: destinationStore
+                            )
+                        },
+                        label: { }
+                    )
                 }
-                
-                NavigationLink(
-                    item: $store.scope(
-                        state: \.destination?.search,
-                        action: \.destination.search
-                    ),
-                    onNavigate: { _ in },
-                    destination: { destinationStore in
-                        SearchView(
-                            store: destinationStore
-                        )
-                    },
-                    label: { }
-                )
             }
             .onAppear {
                 store.send(.onAppear)

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 
 import SearchFeature
 import MediaDatabase
@@ -38,6 +39,10 @@ public struct ScrapFeature {
     }
     
     // MARK: Dependency
+    let logger = Logger(
+        subsystem: Bundle.module.bundleIdentifier!,
+        category: "ScrapFeature"
+    )
     @Dependency(\.persistenceImageRepository) var persistenceImageRepository
     
     // MARK: Initializer
@@ -49,11 +54,15 @@ public struct ScrapFeature {
             switch action {
             case .onAppear:
                 return .run { send in
-                    let persistenceImageModels = persistenceImageRepository
-                        .getAllScrapImage()
-                    let mediaContentModels = Array(persistenceImageModels)
-                        .map { ModelConverter.convert($0) }
-                    await send(.addMedia(mediaContentModels))
+                    do {
+                        let persistenceImageModels = try await persistenceImageRepository
+                            .getAllScrapImage()
+                        let mediaContentModels = persistenceImageModels
+                            .map { ModelConverter.convert($0) }
+                        await send(.addMedia(mediaContentModels))
+                    } catch {
+                        self.logger.error("Failed to fetch image info: \(error.localizedDescription)")
+                    }
                 }
                 
             case .presentSearchView:
@@ -68,6 +77,7 @@ public struct ScrapFeature {
                 return .none
                 
             case .addMedia(let media):
+                state.media.removeAll()
                 state.media.append(contentsOf: media)
                 return .none
             }
