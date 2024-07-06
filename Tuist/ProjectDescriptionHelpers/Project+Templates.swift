@@ -4,27 +4,26 @@ extension Project {
     public static let deployTarget = 15.0
     public static let bundleId = "com.meadia"
     
-    public static func makeMainApp(name: String) -> Project {
+    public static func makeMainApp(
+        appName: String,
+        dependencies: [TargetDependency] = []
+    ) -> Project {
         return Project(
-            name: "\(name)",
+            name: "\(appName)",
             settings: .settings(.base),
             targets: [
                 makeTarget(
-                    name: "\(name)",
+                    name: "\(appName)",
                     product: .app,
                     bundleId: "\(bundleId).app",
                     infoPlist: .file(path: "Sources/Info.plist"),
-                    dependencies: [
-                        .feature(.scrap),
-                        .feature(.search),
-                        .di(.navigation)
-                    ] + uiDependencies
+                    dependencies: dependencies + uiDependencies
                 ),
                 makeTarget(
-                    name: "\(name)Tests",
+                    name: "\(appName)Tests",
                     product: .unitTests,
                     bundleId: "\(bundleId).app.tests",
-                    dependencies: [.target(name: "\(name)")]
+                    dependencies: [.target(name: "\(appName)")]
                 )
             ]
         )
@@ -86,7 +85,26 @@ extension Project {
                     name: "\(name)Network",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).network",
-                    dependencies: dependencies
+                    dependencies: dependencies + netowrkDependencies
+                ),
+            ]
+        )
+    }
+    
+    public static func makeDatabaseModule(
+        _ target: Module.Network,
+        dependencies: [TargetDependency] = []
+    ) -> Project {
+        let name = target.rawValue
+        return Project(
+            name: "\(name)",
+            settings: .settings(.network),
+            targets: [
+                makeTarget(
+                    name: "\(name)Database",
+                    product: .framework,
+                    bundleId: "\(bundleId).\(name).database",
+                    dependencies: dependencies + databaseDependencies
                 ),
             ]
         )
@@ -154,5 +172,9 @@ extension Project {
     
     static let netowrkDependencies: [TargetDependency] = [
         .thirdParty(.alamofire)
+    ]
+    
+    static let databaseDependencies: [TargetDependency] = [
+        .thirdParty(.realm)
     ]
 }

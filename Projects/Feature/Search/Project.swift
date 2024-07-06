@@ -6,5 +6,6 @@ let project = Project.makeFeatureModule(
     dependencies: [
         .feature(.common),
         .network(.media),
+        .database(.media),
     ]
 )

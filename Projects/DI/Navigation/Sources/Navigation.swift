@@ -12,6 +12,7 @@ import SearchFeature
 
 import ComposableArchitecture
 
+@available(*, deprecated, "16.0 이하 버전과의 호환성을 위해 TCA Navigation tree-based 방식으로 전환했습니다. 화면전환은 루트 컴포넌트가 아닌 각 뷰에서 담당합니다.")
 public struct RootNavigationView<Content: View>: View {
     @Perception.Bindable var store: StoreOf<NavigationFeature>
     
@@ -29,12 +30,6 @@ public struct RootNavigationView<Content: View>: View {
         WithPerceptionTracking {
             NavigationView {
                 VStack {
-                    //                    Button {
-                    //                        store.send(.presentScrap)
-                    //                    } label: {
-                    //                        Text("showDetail")
-                    //                    }
-                    
                     content()
                     
                     // MARK: ScrapView
@@ -82,13 +77,13 @@ public struct NavigationFeature {
     
     @ObservableState
     public struct State {
-        @Presents public var destination: Destination.State?
+        @Presents public var destination: Destination.State? // child view에 state를 전달
         
         public init() { }
     }
     
     public enum Action {
-        case destination(PresentationAction<Destination.Action>) // 하위에서 일어난 action을 받을 수 있음
+        case destination(PresentationAction<Destination.Action>) // child view에서 일어난 action을 받기
         case presentScrap
     }
     
