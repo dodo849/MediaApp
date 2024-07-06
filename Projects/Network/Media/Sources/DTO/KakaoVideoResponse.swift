@@ -21,9 +21,8 @@ public struct KakaoVideoResponse: Decodable {
         public let title: String
         public let url: String
         public let datetime: String // ISO 8601 format
-        public let thumbnail: String
         public let play_time: Int // seconds
+        public let thumbnail: String
         public let author: String
-        public let description: String
     }
 }

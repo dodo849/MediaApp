@@ -39,6 +39,7 @@ public struct SearchFeature {
         category: "SearchFeature"
     )
     @Dependency(\.kakaoImageRepository) var kakaoImageRepository
+    @Dependency(\.kakaoVideoRepository) var kakaoVideoRepository
     @Dependency(\.persistenceImageRepository) var persistenceImageRepository
     
     // MARK: Initializer
@@ -61,10 +62,9 @@ public struct SearchFeature {
                 let searchKeyword = state.searchKeyword
                 return .run { send in
                     do {
-                        let response = try await kakaoImageRepository
-                            .searchImages(query: searchKeyword)
-                        let mediaModels = ModelConverter
-                            .convert(kakaoImageResponse: response)
+                        let mediaModels = try await fetchMediaContent(
+                            query: searchKeyword
+                        )
                         await send(.addMedia(mediaModels))
                     } catch {
                         logger.error("\(error.localizedDescription)")
@@ -101,6 +101,24 @@ public struct SearchFeature {
                 return .none
             }
         }
+    }
+    
+    func fetchMediaContent(
+        query: String
+    ) async throws -> [SearchMediaContentModel] {
+        async let imageResponse = kakaoImageRepository.searchImages(query: query)
+        async let videoResponse = kakaoVideoRepository.searchVideos(query: query)
+        
+        let (images, videos) = try await (imageResponse, videoResponse)
+        
+        let imageModels = ModelConverter.convert(images)
+        let videoModels = ModelConverter.convert(videos)
+        
+        let mergedModels = imageModels + videoModels
+        let sortedModels = mergedModels
+            .sorted { $0.datetime > $1.datetime }
+        
+        return sortedModels
     }
     
     private struct DebounceID: Hashable {}

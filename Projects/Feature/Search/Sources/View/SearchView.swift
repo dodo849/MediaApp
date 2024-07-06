@@ -62,6 +62,8 @@ public struct SearchView: View {
                                             )
                                     )
                                 
+                                datatimeOverlay(content.datetime)
+                                
                                 if store.selectedContent.contains(content) {
                                     checkedImageOverlay
                                 }
@@ -75,7 +77,7 @@ public struct SearchView: View {
     }
     
     private var checkedImageOverlay: some View {
-        VStack(alignment: .trailing) {
+        VStack {
             HStack {
                 Spacer()
                 Image(systemName: "archivebox.circle.fill")
@@ -84,10 +86,26 @@ public struct SearchView: View {
                     .foregroundColor(.blue)
                     .background(Color.white)
                     .clipShape(Circle())
-                    .padding(SearchView.gridSpacing)
             }
             Spacer()
         }
+        .padding(SearchView.gridSpacing)
+    }
+    
+    private func datatimeOverlay(_ date: Date) -> some View {
+        VStack {
+            Spacer()
+            HStack {
+                Text(date, format: .dateTime)
+                    .font(.caption)
+                    .foregroundStyle(.black.opacity(0.5))
+                    .padding(8)
+                    .background(.thinMaterial)
+                    .clipShape(.capsule)
+                Spacer()
+            }
+        }
+        .padding(SearchView.gridSpacing)
     }
 }
 

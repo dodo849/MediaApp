@@ -20,7 +20,7 @@ public struct KakaoImageRepository {
         query: String,
         sort: String = "accuracy",
         page: Int = 1,
-        size: Int = 20
+        size: Int = 10
     ) async throws -> KakaoImageResponse {
         assert((1...50).contains(page), "Page must be between 1 and 50")
         assert((1...80).contains(size), "Size must be between 1 and 80")

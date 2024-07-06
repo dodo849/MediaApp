@@ -13,10 +13,10 @@ import MediaDatabase
 
 struct ModelConverter {
     static func convert(
-        kakaoImageResponse: KakaoImageResponse
+        _ kakaoImageResponse: KakaoImageResponse
     ) -> [SearchMediaContentModel] {
         return kakaoImageResponse.documents.map {
-            SearchMediaContentModel(
+            return SearchMediaContentModel(
                 contentType: .image,
                 thumbnailURL: $0.thumbnail_url,
                 contentURL: $0.image_url,
@@ -26,7 +26,7 @@ struct ModelConverter {
     }
     
     static func convert(
-        kakaoVideoResponse: KakaoVideoResponse
+        _ kakaoVideoResponse: KakaoVideoResponse
     ) -> [SearchMediaContentModel] {
         return kakaoVideoResponse.documents.map {
             SearchMediaContentModel(

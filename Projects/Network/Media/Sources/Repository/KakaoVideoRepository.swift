@@ -41,7 +41,7 @@ public struct KakaoVideoRepository {
             requestURL,
             method: .get,
             parameters: parameters,
-            encoding: URLEncoding.default,
+            encoding: URLEncoding.queryString,
             headers: headers
         )
         .validate()

@@ -10,52 +10,70 @@ import OSLog
 import RealmSwift
 import Dependencies
 
-public struct PersistenceVideoRepository {
+public class PersistenceVideoRepository {
+    private let realmThreadLabel = "com.realm.video"
     private let logger = Logger(
         subsystem: Bundle.module.bundleIdentifier!,
         category: "PersistenceVideoRepository"
     )
-    private var realm: Realm
     
-    public init() {
-        do {
-            self.realm = try Realm()
-        } catch {
-            fatalError("Failed to instantiate Realm. Error: \(error.localizedDescription)")
-        }
-    }
+    public init() { }
     
     public func saveScrapVideo(_ model: PersistenceScrapVideoModel) {
-        do {
-            try realm.write {
-                realm.add(model)
+        DispatchQueue(label: realmThreadLabel).async {
+            autoreleasepool {
+                do {
+                    let realm = try Realm()
+                    try realm.write {
+                        realm.add(model)
+                    }
+                } catch {
+                    self.logger.error("Failed to save video info: \(error.localizedDescription)")
+                }
             }
-        } catch {
-            print("Failed to save video info: \(error.localizedDescription)")
         }
     }
     
-    public func getAllScrapVideo() -> Results<PersistenceScrapVideoModel> {
-        return realm.objects(PersistenceScrapVideoModel.self)
-    }
-    
-    public func deleteScrapVideo(byvideoID videoID: Int) {
-        do {
-            try realm.write {
-                if let videoToDelete = realm
-                    .objects(PersistenceScrapImageModel.self)
-                    .filter("videoID == %@", videoID)
-                    .first {
-                    realm.delete(videoToDelete)
-                } else {
-                    logger.warning("Video with videoID \(videoID) not found in database.")
+    public func getAllScrapVideo() async throws -> [PersistenceScrapVideoModel] {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue(label: realmThreadLabel).async {
+                autoreleasepool {
+                    do {
+                        let realm = try Realm().freeze() // Read only
+                        let results = realm.objects(PersistenceScrapVideoModel.self)
+                        continuation.resume(returning: Array(results))
+                    } catch {
+                        continuation.resume(throwing: error)
+                    }
                 }
             }
-        } catch {
-            logger.error("Failed to delete video info: \(error.localizedDescription)")
+        }
+    }
+
+    public func deleteScrapVideo(byVideoID videoID: Int) {
+        DispatchQueue(label: realmThreadLabel).async { [weak self] in
+            autoreleasepool {
+                guard let self = self else { return }
+                do {
+                    let realm = try Realm()
+                    try realm.write {
+                        if let videoToDelete = realm
+                            .objects(PersistenceScrapVideoModel.self)
+                            .filter("videoID == %@", videoID)
+                            .first {
+                            realm.delete(videoToDelete)
+                        } else {
+                            self.logger.warning("Video with videoID \(videoID) not found in database.")
+                        }
+                    }
+                } catch {
+                    self.logger.error("Failed to delete video info: \(error.localizedDescription)")
+                }
+            }
         }
     }
 }
+
 
 // MARK: - Dependency
 private enum PersistenceVideoRepositoryKey: DependencyKey {
