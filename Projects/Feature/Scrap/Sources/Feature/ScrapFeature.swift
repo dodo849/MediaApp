@@ -44,6 +44,7 @@ public struct ScrapFeature {
         category: "ScrapFeature"
     )
     @Dependency(\.persistenceImageRepository) var persistenceImageRepository
+    @Dependency(\.persistenceVideoRepository) var persistenceVideoRepository
     
     // MARK: Initializer
     public init() { }
@@ -55,10 +56,7 @@ public struct ScrapFeature {
             case .onAppear:
                 return .run { send in
                     do {
-                        let persistenceImageModels = try await persistenceImageRepository
-                            .getAllScrapImage()
-                        let mediaContentModels = persistenceImageModels
-                            .map { ModelConverter.convert($0) }
+                        let mediaContentModels = try await fetchScrapContent()
                         await send(.addMedia(mediaContentModels))
                     } catch {
                         self.logger.error("Failed to fetch image info: \(error.localizedDescription)")
@@ -83,5 +81,28 @@ public struct ScrapFeature {
             }
         }
         .ifLet(\.$destination, action: \.destination)
+        
+    }
+    
+    func fetchScrapContent() async throws -> [ScrapMediaContentModel] {
+        async let persistenceImages = persistenceImageRepository
+            .getAllScrapImage()
+        async let persistenceVideos = persistenceVideoRepository
+            .getAllScrapVideo()
+        
+        let (images, videos) = try await (persistenceImages, persistenceVideos)
+        
+        let imageModels = images.map {
+            ModelConverter.convert($0)
+        }
+        let videoModels = videos.map {
+            ModelConverter.convert($0)
+        }
+        
+        let mergedModels = imageModels + videoModels
+        let sortedModels = mergedModels
+            .sorted { $0.datetime > $1.datetime }
+        
+        return sortedModels
     }
 }

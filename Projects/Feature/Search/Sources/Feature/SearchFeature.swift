@@ -41,6 +41,7 @@ public struct SearchFeature {
     @Dependency(\.kakaoImageRepository) var kakaoImageRepository
     @Dependency(\.kakaoVideoRepository) var kakaoVideoRepository
     @Dependency(\.persistenceImageRepository) var persistenceImageRepository
+    @Dependency(\.persistenceVideoRepository) var persistenceVideoRepository
     
     // MARK: Initializer
     public init() { }
@@ -84,8 +85,10 @@ public struct SearchFeature {
                         let persistenceModel: PersistenceScrapImageModel = ModelConverter
                             .convert(content)
                         persistenceImageRepository.saveScrapImage(persistenceModel)
-                    case .video(let playTime):
-                        break
+                    case .video:
+                        let persistenceModel: PersistenceScrapVideoModel = ModelConverter
+                            .convert(content)
+                        persistenceVideoRepository.saveScrapVideo(persistenceModel)
                     }
                 }
                 
@@ -95,7 +98,9 @@ public struct SearchFeature {
                 case .image:
                     persistenceImageRepository
                         .deleteScrapImage(byImageID: content.id)
-                case .video(let playTime):
+                case .video:
+                    persistenceVideoRepository
+                        .deleteScrapVideo(byVideoID: content.id)
                     break
                 }
                 return .none
