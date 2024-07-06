@@ -10,11 +10,11 @@ import Foundation
 import RealmSwift
 
 public class PersistenceScrapVideoModel: Object{
-    @Persisted var id: ObjectId
-    @Persisted var videoID: Int
-    @Persisted var thumbnailURL: String
-    @Persisted var videoURL: String
-    @Persisted var datetime: Date
+    @Persisted public var id: ObjectId
+    @Persisted public var videoID: Int
+    @Persisted public var thumbnailURL: String
+    @Persisted public var videoURL: String
+    @Persisted public var datetime: Date
     
     public convenience init(
         id: ObjectId = ObjectId.generate(),

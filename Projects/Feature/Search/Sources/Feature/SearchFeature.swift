@@ -50,7 +50,6 @@ public struct SearchFeature {
             switch action {
             case .searchKeywordChanged(let text):
                 state.searchKeyword = text
-                print("text \(text)")
                 return .send(.searchMedia)
                     .debounce(
                         id: DebounceID(),
@@ -64,7 +63,7 @@ public struct SearchFeature {
                     do {
                         let response = try await kakaoImageRepository
                             .searchImages(query: searchKeyword)
-                        let mediaModels = MediaConverter
+                        let mediaModels = ModelConverter
                             .convert(kakaoImageResponse: response)
                         await send(.addMedia(mediaModels))
                     } catch {
@@ -79,27 +78,28 @@ public struct SearchFeature {
                 
             case .selectContent(let content):
                 state.selectedContent.append(content)
-                switch content.contentType {
-                case .image:
-                    let persistenceModel: PersistenceScrapImageModel = MediaConverter
-                        .convert(content)
-                    persistenceImageRepository.saveScrapImage(persistenceModel)
-                case .video(let playTime):
-                    break
+                return .run { _ in
+                    switch content.contentType {
+                    case .image:
+                        let persistenceModel: PersistenceScrapImageModel = ModelConverter
+                            .convert(content)
+                        persistenceImageRepository.saveScrapImage(persistenceModel)
+                    case .video(let playTime):
+                        break
+                    }
                 }
-                
-                return .none
                 
             case .deselectContent(let content):
                 state.selectedContent.removeAll(where: { $0.id == content.id })
-                switch content.contentType {
-                case .image:
-                    persistenceImageRepository
-                        .deleteScrapImage(byImageID: content.id)
-                case .video(let playTime):
-                    break
+                return .run { _ in
+                    switch content.contentType {
+                    case .image:
+                        persistenceImageRepository
+                            .deleteScrapImage(byImageID: content.id)
+                    case .video(let playTime):
+                        break
+                    }
                 }
-                return .none
             }
         }
     }

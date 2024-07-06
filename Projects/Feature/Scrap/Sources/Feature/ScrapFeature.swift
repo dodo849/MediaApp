@@ -8,7 +8,7 @@
 import Foundation
 
 import SearchFeature
-import MediaNetwork
+import MediaDatabase
 
 import ComposableArchitecture
 
@@ -24,6 +24,7 @@ public struct ScrapFeature {
     @ObservableState
     public struct State {
         @Presents public var destination: Destination.State?
+        public var media: [ScrapMediaContentModel] = []
         
         public init() { }
     }
@@ -33,9 +34,11 @@ public struct ScrapFeature {
         case onAppear
         case presentSearchView
         case destination(PresentationAction<Destination.Action>)
+        case addMedia([ScrapMediaContentModel])
     }
     
     // MARK: Dependency
+    @Dependency(\.persistenceImageRepository) var persistenceImageRepository
     
     // MARK: Initializer
     public init() { }
@@ -45,14 +48,27 @@ public struct ScrapFeature {
         Reduce { state, action in
             switch action {
             case .onAppear:
-                return .none
+                return .run { send in
+                    let persistenceImageModels = persistenceImageRepository
+                        .getAllScrapImage()
+                    let mediaContentModels = Array(persistenceImageModels)
+                        .map { ModelConverter.convert($0) }
+                    await send(.addMedia(mediaContentModels))
+                }
+                
             case .presentSearchView:
                 state.destination = .search(.init())
                 return .none
+                
             case .destination(.dismiss):
                 state.destination = nil
                 return .none
+                
             case .destination(.presented(_)):
+                return .none
+                
+            case .addMedia(let media):
+                state.media.append(contentsOf: media)
                 return .none
             }
         }

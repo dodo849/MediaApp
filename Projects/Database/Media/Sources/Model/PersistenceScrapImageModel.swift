@@ -10,11 +10,11 @@ import Foundation
 import RealmSwift
 
 public class PersistenceScrapImageModel: Object {
-    @Persisted var id: ObjectId
-    @Persisted var imageID: Int
-    @Persisted var thumbnailURL: String
-    @Persisted var imageURL: String
-    @Persisted var datetime: Date
+    @Persisted public var id: ObjectId
+    @Persisted public var imageID: Int
+    @Persisted public var thumbnailURL: String
+    @Persisted public var imageURL: String
+    @Persisted public var datetime: Date
     
     public convenience init(
         id: ObjectId = ObjectId.generate(),

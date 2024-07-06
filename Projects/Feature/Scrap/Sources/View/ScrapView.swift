@@ -12,6 +12,7 @@ import SearchFeature
 import MediaNetwork
 
 import ComposableArchitecture
+import Kingfisher
 
 public struct ScrapView: View {
     @Perception.Bindable var store: StoreOf<ScrapFeature>
@@ -31,6 +32,22 @@ public struct ScrapView: View {
                     Text("Show SearchView")
                 }
                 
+                LazyVGrid(
+                    columns: [
+                        GridItem(.flexible(), spacing: ScrapView.gridSpacing),
+                        GridItem(.flexible(), spacing: ScrapView.gridSpacing)
+                    ],
+                    spacing: ScrapView.gridSpacing
+                ) {
+                    ForEach(store.media) { content in
+                        KFImage(URL(string: content.thumbnailURL)!)
+                            .fade(duration: 0.5)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .cornerRadius(ScrapView.imageRadius)
+                    }
+                }
+                
                 NavigationLink(
                     item: $store.scope(
                         state: \.destination?.search,
@@ -45,6 +62,28 @@ public struct ScrapView: View {
                     label: { }
                 )
             }
+            .onAppear {
+                store.send(.onAppear)
+            }
         }
     }
 }
+
+// MARK: - View Contant
+extension ScrapView {
+    static let gridSpacing: CGFloat = 8
+    static let imageRadius: CGFloat = 4
+}
+
+// MARK: - Preview
+#Preview {
+    ScrapView(
+        store: Store(
+            initialState:
+                ScrapFeature.State()
+        ) {
+            ScrapFeature()
+        }
+    )
+}
+
