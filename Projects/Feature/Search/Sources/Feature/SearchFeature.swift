@@ -7,6 +7,7 @@
 
 import OSLog
 
+import CacheCore
 import MediaNetwork
 import MediaDatabase
 
@@ -119,10 +120,27 @@ public struct SearchFeature {
         }
     }
     
+    enum KakaoMediaFetchQueryKey: CacheQueryKey {
+        case image(keyword: String, page: Int, size: Int)
+        case video(keyword: String, page: Int, size: Int)
+    }
+    
     func fetchMediaContent(
         query: String
     ) async throws -> [SearchMediaContentModel] {
-        async let imageResponse = kakaoImageRepository.searchImages(query: query)
+        let imageCachequery = CacheQuery.makeQuery(
+            key: KakaoMediaFetchQueryKey.image(
+                keyword: query,
+                page: 1,
+                size: 10
+            ),
+            expiry: 60 * 1
+        ) {
+            try await kakaoImageRepository
+                .searchImages(query: query)
+        }
+        
+        async let imageResponse = imageCachequery()
         async let videoResponse = kakaoVideoRepository.searchVideos(query: query)
         
         let (images, videos) = try await (imageResponse, videoResponse)
@@ -161,16 +179,6 @@ public struct SearchFeature {
         let searchContentIds = searchContents.map { $0.id }
         let scrappedContents = mergedModels
             .filter { searchContentIds.contains($0.id) }
-        
-        searchContents.map {
-            print($0)
-        }
-        
-        print("----")
-        
-        scrappedContents.map {
-            print($0)
-        }
         
         return scrappedContents
     }

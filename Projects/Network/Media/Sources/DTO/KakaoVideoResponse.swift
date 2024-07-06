@@ -7,17 +7,17 @@
 
 import Foundation
 
-public struct KakaoVideoResponse: Decodable {
+public struct KakaoVideoResponse: Codable {
     public let meta: Meta
     public let documents: [VideoDocument]
     
-    public struct Meta: Decodable {
+    public struct Meta: Codable {
         public let total_count: Int
         public let pageable_count: Int
         public let is_end: Bool
     }
 
-    public struct VideoDocument: Decodable {
+    public struct VideoDocument: Codable {
         public let title: String
         public let url: String
         public let datetime: String // ISO 8601 format

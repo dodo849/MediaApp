@@ -7,17 +7,17 @@
 
 import Foundation
 
-public struct KakaoImageResponse: Decodable {
+public struct KakaoImageResponse: Codable {
     public let meta: Meta
     public let documents: [Document]
     
-    public struct Meta: Decodable {
+    public struct Meta: Codable {
         public let total_count: Int
         public let pageable_count: Int
         public let is_end: Bool
     }
 
-    public struct Document: Decodable{
+    public struct Document: Codable {
         public let collection: String
         public let thumbnail_url: String
         public let image_url: String
