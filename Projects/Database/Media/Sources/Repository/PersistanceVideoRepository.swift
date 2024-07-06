@@ -74,7 +74,6 @@ public class PersistenceVideoRepository {
     }
 }
 
-
 // MARK: - Dependency
 private enum PersistenceVideoRepositoryKey: DependencyKey {
     static let liveValue: PersistenceVideoRepository = PersistenceVideoRepository()

@@ -30,6 +30,7 @@ public struct SearchFeature {
         case searchMedia
         case addMedia([SearchMediaContentModel])
         case selectContent(SearchMediaContentModel)
+        case selectContents([SearchMediaContentModel])
         case deselectContent(SearchMediaContentModel)
     }
     
@@ -55,7 +56,7 @@ public struct SearchFeature {
                 return .send(.searchMedia)
                     .debounce(
                         id: DebounceID(),
-                        for: 2,
+                        for: 1.5,
                         scheduler: DispatchQueue.main
                     )
                 
@@ -67,6 +68,12 @@ public struct SearchFeature {
                             query: searchKeyword
                         )
                         await send(.addMedia(mediaModels))
+                        
+                        let scrapedContents = try await compareIsScrapped(
+                            searchContents: mediaModels
+                        )
+                        await send(.selectContents(scrapedContents))
+                        
                     } catch {
                         logger.error("\(error.localizedDescription)")
                     }
@@ -91,6 +98,10 @@ public struct SearchFeature {
                         persistenceVideoRepository.saveScrapVideo(persistenceModel)
                     }
                 }
+                
+            case .selectContents(let contents):
+                state.selectedContent.append(contentsOf: contents)
+                return .none
                 
             case .deselectContent(let content):
                 state.selectedContent.removeAll(where: { $0.id == content.id })
@@ -124,6 +135,44 @@ public struct SearchFeature {
             .sorted { $0.datetime > $1.datetime }
         
         return sortedModels
+    }
+    
+    func compareIsScrapped(
+        searchContents: [SearchMediaContentModel]
+    ) async throws -> [SearchMediaContentModel] {
+        // Fetch all scraped images and videos
+        async let persistenceImages = persistenceImageRepository
+            .getAllScrapImage()
+        async let persistenceVideos = persistenceVideoRepository
+            .getAllScrapVideo()
+        
+        let (images, videos) = try await (persistenceImages, persistenceVideos)
+        
+        let imageModels = images.map {
+            ModelConverter.convert($0)
+        }
+        let videoModels = videos.map {
+            ModelConverter.convert($0)
+        }
+        
+        let mergedModels = imageModels + videoModels
+        
+        // Compare search contents with scraped images and videos using id
+        let searchContentIds = searchContents.map { $0.id }
+        let scrappedContents = mergedModels
+            .filter { searchContentIds.contains($0.id) }
+        
+        searchContents.map {
+            print($0)
+        }
+        
+        print("----")
+        
+        scrappedContents.map {
+            print($0)
+        }
+        
+        return scrappedContents
     }
     
     private struct DebounceID: Hashable {}

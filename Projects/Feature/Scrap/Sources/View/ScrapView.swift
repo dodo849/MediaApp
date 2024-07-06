@@ -26,19 +26,22 @@ public struct ScrapView: View {
     public var body: some View {
         WithPerceptionTracking {
             ScrollView {
-                VStack {
+                VStack(alignment: .leading) {
                     Button {
                         store.send(.presentSearchView)
                     } label: {
-                        Text("Show SearchView")
+                        Text("Go Search")
                     }
+                    
+                    Text("스크랩")
+                        .font(.headline)
                     
                     LazyVGrid(
                         columns: [
-                            GridItem(.flexible(), spacing: ScrapView.gridSpacing),
-                            GridItem(.flexible(), spacing: ScrapView.gridSpacing)
+                            GridItem(.flexible(), spacing: Self.gridSpacing),
+                            GridItem(.flexible(), spacing: Self.gridSpacing)
                         ],
-                        spacing: ScrapView.gridSpacing
+                        spacing: Self.gridSpacing
                     ) {
                         ForEach(store.media) { content in
                             KFImage(URL(string: content.thumbnailURL)!)
@@ -63,6 +66,7 @@ public struct ScrapView: View {
                         label: { }
                     )
                 }
+                .padding(Self.gridSpacing)
             }
             .onAppear {
                 store.send(.onAppear)

@@ -23,7 +23,7 @@ public struct SearchView: View {
         WithPerceptionTracking {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Text("Search View")
+                    Text("Search")
                         .font(.headline)
                     TextField(
                         "검색어를 입력해주세요",
@@ -33,10 +33,10 @@ public struct SearchView: View {
                     
                     LazyVGrid(
                         columns: [
-                            GridItem(.flexible(), spacing: SearchView.gridSpacing),
-                            GridItem(.flexible(), spacing: SearchView.gridSpacing)
+                            GridItem(.flexible(), spacing: Self.gridSpacing),
+                            GridItem(.flexible(), spacing: Self.gridSpacing)
                         ],
-                        spacing: SearchView.gridSpacing
+                        spacing: Self.gridSpacing
                     ) {
                         ForEach(store.media) { content in
                             ZStack {
@@ -44,7 +44,7 @@ public struct SearchView: View {
                                     .fade(duration: 0.5)
                                     .resizable()
                                     .aspectRatio(contentMode: .fit)
-                                    .cornerRadius(SearchView.imageRadius)
+                                    .cornerRadius(Self.imageRadius)
                                     .onTapGesture {
                                         if store.selectedContent.contains(content) {
                                             store.send(.deselectContent(content))
@@ -53,7 +53,7 @@ public struct SearchView: View {
                                         }
                                     }
                                     .overlay(
-                                        RoundedRectangle(cornerRadius: SearchView.imageRadius)
+                                        RoundedRectangle(cornerRadius: Self.imageRadius)
                                             .stroke(
                                                 store.selectedContent.contains(content)
                                                 ? Color.blue
@@ -71,7 +71,7 @@ public struct SearchView: View {
                         }
                     }
                 }
-                .padding(SearchView.gridSpacing)
+                .padding(Self.gridSpacing)
             }
         }
     }
@@ -105,7 +105,7 @@ public struct SearchView: View {
                 Spacer()
             }
         }
-        .padding(SearchView.gridSpacing)
+        .padding(Self.gridSpacing)
     }
 }
 

@@ -21,7 +21,7 @@ public struct ScrapMediaContentModel: Equatable, Identifiable {
         contentURL: String,
         datetime: Date
     ) {
-        self.id = id ?? ScrapMediaContentModel.generateID(from: contentURL)
+        self.id = id ?? Self.generateID(from: contentURL)
         self.contentType = contentType
         self.thumbnailURL = thumbnailURL
         self.contentURL = contentURL
