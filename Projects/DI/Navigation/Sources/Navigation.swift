@@ -92,13 +92,11 @@ public struct NavigationFeature {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .destination(_):
+            case .destination:
                 state.destination = .search(.init())
                 return .none
             case .presentScrap:
                 state.destination = .scrap(.init())
-                return .none
-            case .destination(.dismiss):
                 return .none
             }
         }

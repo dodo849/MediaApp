@@ -71,7 +71,7 @@ public struct ScrapFeature {
                 state.destination = nil
                 return .none
                 
-            case .destination(.presented(_)):
+            case .destination:
                 return .none
                 
             case .addMedia(let media):

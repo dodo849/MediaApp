@@ -13,6 +13,6 @@ public protocol CacheQueryKey {
 
 public extension CacheQueryKey {
     var key: String {
-        return "\(self)"
+        return "\(type(of: self))_\(self)"
     }
 }

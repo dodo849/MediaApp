@@ -113,7 +113,6 @@ public struct SearchFeature {
                 case .video:
                     persistenceVideoRepository
                         .deleteScrapVideo(byVideoID: content.id)
-                    break
                 }
                 return .none
             }
@@ -123,25 +122,40 @@ public struct SearchFeature {
     enum KakaoMediaFetchQueryKey: CacheQueryKey {
         case image(keyword: String, page: Int, size: Int)
         case video(keyword: String, page: Int, size: Int)
+        
+        static var expiry: TimeInterval { 60 * 5 }
     }
     
     func fetchMediaContent(
         query: String
     ) async throws -> [SearchMediaContentModel] {
-        let imageCachequery = CacheQuery.makeQuery(
+        let imageCacheQuery = CacheQuery.shared.makeQuery(
             key: KakaoMediaFetchQueryKey.image(
                 keyword: query,
                 page: 1,
                 size: 10
             ),
-            expiry: 60 * 1
+            expiry: KakaoMediaFetchQueryKey.expiry
         ) {
             try await kakaoImageRepository
                 .searchImages(query: query)
         }
         
-        async let imageResponse = imageCachequery()
-        async let videoResponse = kakaoVideoRepository.searchVideos(query: query)
+        let videoCacheQuery = CacheQuery.shared.makeQuery(
+            key: KakaoMediaFetchQueryKey.video(
+                keyword: query,
+                page: 1,
+                size: 10
+            ),
+            expiry: KakaoMediaFetchQueryKey.expiry
+        ) {
+            try await kakaoVideoRepository
+                .searchVideos(query: query)
+        }
+        
+        // 병렬 처리
+        async let imageResponse = imageCacheQuery()
+        async let videoResponse = videoCacheQuery()
         
         let (images, videos) = try await (imageResponse, videoResponse)
         
