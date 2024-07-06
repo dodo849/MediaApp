@@ -38,7 +38,7 @@ public class PersistenceImageRepository {
     public func getAllScrapImage() -> Results<PersistenceScrapImageModel> {
         return realm.objects(PersistenceScrapImageModel.self)
     }
-    
+
     public func deleteScrapImage(byImageID imageID: Int) {
         do {
             try realm.write {
