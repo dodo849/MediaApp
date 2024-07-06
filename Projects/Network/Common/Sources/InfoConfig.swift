@@ -1,5 +1,5 @@
 //
-//  URLConfig.swift
+//  InfoConfig.swift
 //  arambyeol2023ver
 //
 //  Created by DOYEON LEE on 6/8/24.

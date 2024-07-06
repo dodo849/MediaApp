@@ -18,18 +18,14 @@ struct MediaApp: App {
             RootNavigationView(
                 store: navigationStore
             ) {
-                //                ContentView()
                 ScrapView(
-                    store: Store(
-                        initialState: ScrapFeature.State()
-                    ) {
-                        ScrapFeature()
-                    }
+                    store: navigationStore.scope(
+                        state: \.destination?.scrap ?? ScrapFeature.State(), // 기본값 설정
+                        action: \.destination.scrap ?? .init()
+                    )
                 )
             }
-            .navigationViewStyle(StackNavigationViewStyle())
         }
-        .environment(\.navigationStore, navigationStore)
     }
 }
 

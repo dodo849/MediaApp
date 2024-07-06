@@ -5,5 +5,6 @@ let project = Project.makeFeatureModule(
     .scrap,
     dependencies: [
         .feature(.common),
+        .network(.media),
     ]
 )

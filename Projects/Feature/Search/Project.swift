@@ -4,6 +4,7 @@ import ProjectDescriptionHelpers
 let project = Project.makeFeatureModule(
     .search,
     dependencies: [
-        .feature(.common)
+        .feature(.common),
+        .network(.media),
     ]
 )

@@ -8,4 +8,5 @@
 // Configuration settings file format documentation can be found at:
 // https://help.apple.com/xcode/#/dev745c5c974
 
-API_BASE_URL=127.0.0.1:8080/api/v1
+API_BASE_URL=https://dapi.kakao.com/v2/search
+KAKAO_REST_API_KEY=6ed6c2ff45e13bfc4b502bee3f767610

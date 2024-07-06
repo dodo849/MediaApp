@@ -29,11 +29,11 @@ public struct RootNavigationView<Content: View>: View {
         WithPerceptionTracking {
             NavigationView {
                 VStack {
-                    Button {
-                        store.send(.presentScrap)
-                    } label: {
-                        Text("showDetail")
-                    }
+                    //                    Button {
+                    //                        store.send(.presentScrap)
+                    //                    } label: {
+                    //                        Text("showDetail")
+                    //                    }
                     
                     content()
                     
@@ -42,7 +42,7 @@ public struct RootNavigationView<Content: View>: View {
                         item: $store.scope(
                             state: \.destination?.scrap,
                             action: \.destination.scrap
-                          ),
+                        ),
                         onNavigate: { _ in },
                         destination: { destinationStore in
                             ScrapView(
@@ -57,7 +57,7 @@ public struct RootNavigationView<Content: View>: View {
                         item: $store.scope(
                             state: \.destination?.search,
                             action: \.destination.search
-                          ),
+                        ),
                         onNavigate: { _ in },
                         destination: { destinationStore in
                             SearchView(
@@ -82,7 +82,7 @@ public struct NavigationFeature {
     
     @ObservableState
     public struct State {
-        @Presents var destination: Destination.State? // 하위에 state를 주입할 수 있음
+        @Presents public var destination: Destination.State?
         
         public init() { }
     }
