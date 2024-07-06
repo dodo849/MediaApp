@@ -17,7 +17,7 @@ public struct KakaoImageResponse: Decodable {
         public let is_end: Bool
     }
 
-    public struct Document: Decodable, Equatable {
+    public struct Document: Decodable{
         public let collection: String
         public let thumbnail_url: String
         public let image_url: String

@@ -11,14 +11,13 @@ import MediaNetwork
 
 import ComposableArchitecture
 
-
 @Reducer
 public struct SearchFeature {
     // MARK: State
     @ObservableState
     public struct State: Equatable {
         public var searchKeyword: String = ""
-        public var images: [KakaoImageResponse.Document] = []
+        public var media: [MediaModel] = []
         
         public init() { }
     }
@@ -27,7 +26,7 @@ public struct SearchFeature {
     public enum Action {
         case searchKeywordChanged(String)
         case searchMedia
-        case addMedia([KakaoImageResponse.Document])
+        case addMedia([MediaModel])
     }
     
     // MARK: Dependency
@@ -46,8 +45,13 @@ public struct SearchFeature {
             switch action {
             case .searchKeywordChanged(let text):
                 state.searchKeyword = text
+                print("text \(text)")
                 return .send(.searchMedia)
-                    .debounce(id: DebounceID(), for: 2, scheduler: DispatchQueue.main)
+                    .debounce(
+                        id: DebounceID(),
+                        for: 2,
+                        scheduler: DispatchQueue.main
+                    )
                 
             case .searchMedia:
                 let searchKeyword = state.searchKeyword
@@ -55,15 +59,17 @@ public struct SearchFeature {
                     do {
                         let response = try await kakaoImageRepository
                             .searchImages(query: searchKeyword)
-                        await send(.addMedia(response.documents))
+                        let mediaModels = MediaConverter
+                            .convert(kakaoImageResponse: response)
+                        await send(.addMedia(mediaModels))
                     } catch {
                         logger.error("\(error.localizedDescription)")
                     }
                 }
                 
             case .addMedia(let media):
-                state.images.removeAll()
-                state.images.append(contentsOf: media)
+                state.media.removeAll()
+                state.media.append(contentsOf: media)
                 return .none
             }
         }

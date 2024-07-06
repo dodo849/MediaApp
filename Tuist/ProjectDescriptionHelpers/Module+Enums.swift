@@ -29,6 +29,7 @@ public enum Module {
         case alamofire = "Alamofire"
         case realm = "RealmSwift"
         case swiftDependencies = "Dependencies"
+        case kingfisher = "Kingfisher"
     }
 
 }

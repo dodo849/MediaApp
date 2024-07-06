@@ -7,5 +7,6 @@ let project = Project.makeFeatureModule(
         .feature(.common),
         .network(.media),
         .database(.media),
+        .thirdParty(.kingfisher)
     ]
 )
