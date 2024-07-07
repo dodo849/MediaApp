@@ -12,6 +12,7 @@ import SearchFeature
 import MediaDatabase
 
 import ComposableArchitecture
+import Kingfisher
 
 @Reducer
 public struct ScrapFeature {
@@ -68,10 +69,11 @@ public struct ScrapFeature {
                 return .none
                 
             case .destination(.dismiss):
+                KingfisherManager.shared.cache.clearCache()
                 state.destination = nil
                 return .none
                 
-            case .destination:
+            case .destination(.presented):
                 return .none
                 
             case .addMedia(let media):

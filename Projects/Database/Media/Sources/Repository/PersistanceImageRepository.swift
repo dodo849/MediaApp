@@ -50,7 +50,7 @@ public class PersistenceImageRepository {
         }
     }
 
-    public func deleteScrapImage(byImageID imageID: Int) {
+    public func deleteScrapImage(byImageID imageID: String) {
         DispatchQueue(label: realmThreadLabel).async { [weak self] in
             autoreleasepool {
                 guard let self = self else { return }

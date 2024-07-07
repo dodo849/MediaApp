@@ -77,9 +77,6 @@ public struct SearchView: View {
                     }
                 }
                 .padding(Self.gridSpacing)
-                .onDisappear {
-                    KingfisherManager.shared.cache.clearCache()
-                }
             }
         }
     }

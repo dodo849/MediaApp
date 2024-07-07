@@ -8,20 +8,20 @@
 import Foundation
 
 public struct SearchMediaContentModel: Equatable, Identifiable {
-    public let id: Int
+    public let id: String
     public let contentType: MediaType
     public let thumbnailURL: String
     public let contentURL: String
     public var datetime: Date
     
     public init(
-        id: Int? = nil,
+        id: String? = nil,
         contentType: MediaType,
         thumbnailURL: String,
         contentURL: String,
         datetime: Date
     ) {
-        self.id = id ?? Self.generateID(from: contentURL)
+        self.id = id ?? contentURL
         self.contentType = contentType
         self.thumbnailURL = thumbnailURL
         self.contentURL = contentURL
@@ -30,11 +30,5 @@ public struct SearchMediaContentModel: Equatable, Identifiable {
     
     public enum MediaType: Equatable {
         case image, video(playTime: Int)
-    }
-    
-    private static func generateID(from string: String) -> Int {
-        var hasher = Hasher()
-        hasher.combine(string)
-        return hasher.finalize()
     }
 }

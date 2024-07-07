@@ -12,6 +12,7 @@ import MediaNetwork
 import MediaDatabase
 
 import ComposableArchitecture
+import Kingfisher
 
 @Reducer
 public struct SearchFeature {
@@ -128,7 +129,7 @@ public struct SearchFeature {
             }
         }
     }
-    
+        
     enum KakaoMediaFetchQueryKey: CacheQueryKey {
         case image(keyword: String, page: Int, size: Int)
         case video(keyword: String, page: Int, size: Int)
@@ -140,7 +141,6 @@ public struct SearchFeature {
         query: String,
         page: Int
     ) async throws -> [SearchMediaContentModel] {
-        print(page)
         let imageCacheQuery = CacheQuery.shared.makeQuery(
             key: KakaoMediaFetchQueryKey.image(
                 keyword: query,

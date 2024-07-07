@@ -50,7 +50,7 @@ public class PersistenceVideoRepository {
         }
     }
 
-    public func deleteScrapVideo(byVideoID videoID: Int) {
+    public func deleteScrapVideo(byVideoID videoID: String) {
         DispatchQueue(label: realmThreadLabel).async { [weak self] in
             autoreleasepool {
                 guard let self = self else { return }

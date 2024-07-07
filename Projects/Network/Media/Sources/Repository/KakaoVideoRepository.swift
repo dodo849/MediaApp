@@ -22,6 +22,7 @@ public struct KakaoVideoRepository {
         page: Int = 1,
         size: Int = 20
     ) async throws -> KakaoVideoResponse {
+        // TODO: Last page 확인 절차 필요
         assert((1...15).contains(page), "Page must be between 1 and 15")
         assert((1...30).contains(size), "Size must be between 1 and 30")
         
