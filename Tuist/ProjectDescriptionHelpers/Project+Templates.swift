@@ -112,25 +112,6 @@ extension Project {
             ]
         )
     }
-    
-    public static func makeDIModule(
-        _ target: Module.DI,
-        dependencies: [TargetDependency] = []
-    ) -> Project {
-        let name = target.rawValue
-        return Project(
-            name: "\(name)",
-            settings: .settings(.base),
-            targets: [
-                makeTarget(
-                    name: "\(name)DI",
-                    product: .framework,
-                    bundleId: "\(bundleId).\(name).di",
-                    dependencies: dependencies + uiDependencies
-                ),
-            ]
-        )
-    }
 }
 
 // MARK: - Target

@@ -20,10 +20,6 @@ public enum Module {
         case media = "Media"
     }
     
-    public enum DI: String, CaseIterable {
-        case navigation = "Navigation"
-    }
-    
     public enum ThirdParty: String {
         case composableArchitecture = "ComposableArchitecture"
         case alamofire = "Alamofire"

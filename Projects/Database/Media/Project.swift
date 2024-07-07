@@ -2,5 +2,8 @@ import ProjectDescription
 import ProjectDescriptionHelpers
 
 let project = Project.makeDatabaseModule(
-    .media
+    .media,
+    dependencies: [
+        .database(.common)
+    ]
 )

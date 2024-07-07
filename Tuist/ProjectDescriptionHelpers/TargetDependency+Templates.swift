@@ -37,15 +37,6 @@ public extension TargetDependency {
         )
     }
     
-    static func di(
-        _ target: Module.DI
-    ) -> TargetDependency {
-        return .project(
-            target: "\(target.rawValue)DI",
-            path: .relativeToRoot("Projects/DI/\(target.rawValue)")
-        )
-    }
-    
     static func thirdParty(
         _ target: Module.ThirdParty,
         condition: PlatformCondition? = nil
