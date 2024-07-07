@@ -22,9 +22,9 @@
   |구성|역할|
   |--|--|
   | Repository | 외부 API 접근 |
-  | Response(DTO) | 외부 API 데이터 스키마 | 
+  | Response(DTO) | 외부 API 데이터 스키마 |
   -  **세부모듈**
-    - `Media`: 이미지/비디오 관련 서버 데이터 접근
+      - `Media`: 이미지/비디오 관련 서버 데이터 접근
 - **Database**
   > 내부 데이터베이스에 접근
   
@@ -33,13 +33,14 @@
   | Repository | 내부 데이터베이스 접근 |
   | PersistenceModel | 데이터베이스 스키마 | 
   - **세부모듈**
-    - `Media`: 이미지/비디오 관련 데이터 내부 DB 저장
+    - `Media`: 이미지/비디오 관련 내부 DB 데이터 접근
 - **Core**
   > 앱 전반에 걸친 공통 기능을 수행
-  - `Cache`: 서버 데이터 캐싱
+  - **세부모듈**
+    - `Cache`: 서버 데이터 캐싱
 
 ## 라이브러리
-이름 | 용도 | 버전 | Git
+라이브러리명 | 용도 | 버전 | Git
 |--|--|--|--|
 swift-composable-architecture |	상태관리 	| 1.11.0 이상| [swift-composable-architecture](https://github.com/pointfreeco/swift-composable-architecture.git)
 swift-dependencies |의존성 주입| 1.0.0 이상| [swift-dependencies](https://github.com/pointfreeco/swift-dependencies)
