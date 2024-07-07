@@ -64,7 +64,6 @@ GoogleService-Info.plist
 *.xcworkspace
 *.playground
 *.xcodeproj
-*.xcassets
 #.xcconfig
 
 # Tuist specific files
