@@ -28,7 +28,7 @@ struct ModelConverter {
     ) -> ScrapMediaContentModel {
         return .init(
             id: persistenceVideoModel.videoID,
-            contentType: .image,
+            contentType: .video(playTime: persistenceVideoModel.playTime),
             thumbnailURL: persistenceVideoModel.thumbnailURL,
             contentURL: persistenceVideoModel.videoURL,
             datetime: persistenceVideoModel.datetime

@@ -14,7 +14,7 @@ public class PersistenceScrapVideoModel: Object{
     @Persisted public var videoID: String
     @Persisted public var thumbnailURL: String
     @Persisted public var videoURL: String
-    @Persisted public var playTime: Int
+    @Persisted public var playTime: TimeInterval
     @Persisted public var datetime: Date
     
     public convenience init(
@@ -22,7 +22,7 @@ public class PersistenceScrapVideoModel: Object{
         videoID: String,
         thumbnailURL: String,
         videoURL: String,
-        playTime: Int,
+        playTime: TimeInterval,
         datetime: Date
     ) {
         self.init()

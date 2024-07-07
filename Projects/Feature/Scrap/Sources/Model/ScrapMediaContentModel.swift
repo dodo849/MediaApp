@@ -29,12 +29,6 @@ public struct ScrapMediaContentModel: Equatable, Identifiable {
     }
     
     public enum MediaType: Equatable {
-        case image, video(playTime: Int)
-    }
-    
-    private static func generateID(from string: String) -> Int {
-        var hasher = Hasher()
-        hasher.combine(string)
-        return hasher.finalize()
+        case image, video(playTime: TimeInterval)
     }
 }

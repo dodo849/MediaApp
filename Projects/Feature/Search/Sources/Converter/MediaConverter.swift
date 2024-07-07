@@ -31,7 +31,7 @@ struct ModelConverter {
     ) -> [SearchMediaContentModel] {
         return kakaoVideoResponse.documents.map {
             .init(
-                contentType: .video(playTime: $0.play_time),
+                contentType: .video(playTime: TimeInterval($0.play_time)),
                 thumbnailURL: $0.thumbnail,
                 contentURL: $0.url,
                 datetime: $0.datetime.toDate() ?? Date()

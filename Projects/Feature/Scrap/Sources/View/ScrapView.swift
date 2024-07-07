@@ -44,11 +44,19 @@ public struct ScrapView: View {
                         spacing: Self.gridSpacing
                     ) {
                         ForEach(store.media) { content in
-                            KFImage(URL(string: content.thumbnailURL)!)
-                                .fade(duration: 0.5)
-                                .resizable()
-                                .aspectRatio(contentMode: .fit)
-                                .cornerRadius(ScrapView.imageRadius)
+                            let playTime: TimeInterval? = {
+                                if case let .video(time) = content.contentType {
+                                    return time
+                                } else {
+                                    return nil
+                                }
+                            }()
+                            
+                            MediaCell(
+                                imageURL: content.thumbnailURL,
+                                playTime: playTime,
+                                date: content.datetime
+                            )
                         }
                     }
                     

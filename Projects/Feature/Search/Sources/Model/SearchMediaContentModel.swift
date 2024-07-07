@@ -29,6 +29,6 @@ public struct SearchMediaContentModel: Equatable, Identifiable {
     }
     
     public enum MediaType: Equatable {
-        case image, video(playTime: Int)
+        case image, video(playTime: TimeInterval)
     }
 }

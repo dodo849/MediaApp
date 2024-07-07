@@ -45,33 +45,23 @@ public struct SearchView: View {
                         spacing: Self.gridSpacing
                     ) {
                         ForEach(store.media) { content in
-                            ZStack {
-                                KFImage(URL(string: content.thumbnailURL)!)
-                                    .fade(duration: 0.5)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fit)
-                                    .cornerRadius(Self.imageRadius)
-                                    .onTapGesture {
-                                        if store.selectedContent.contains(content) {
-                                            store.send(.deselectContent(content))
-                                        } else {
-                                            store.send(.selectContent(content))
-                                        }
-                                    }
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: Self.imageRadius)
-                                            .stroke(
-                                                store.selectedContent.contains(content)
-                                                ? Color.blue
-                                                : Color.clear,
-                                                lineWidth: 2
-                                            )
-                                    )
-                                
-                                datatimeOverlay(content.datetime)
-                                
+                            let playTime: TimeInterval? = {
+                                if case let .video(time) = content.contentType {
+                                    return time
+                                } else {
+                                    return nil
+                                }
+                            }()
+                            
+                            MediaCell(
+                                imageURL: content.thumbnailURL,
+                                playTime: playTime,
+                                date: content.datetime
+                            ).onTapGesture {
                                 if store.selectedContent.contains(content) {
-                                    checkedImageOverlay
+                                    store.send(.deselectContent(content))
+                                } else {
+                                    store.send(.selectContent(content))
                                 }
                             }
                             .onAppear {
@@ -86,38 +76,6 @@ public struct SearchView: View {
             }
         }
     }
-    
-    private var checkedImageOverlay: some View {
-        VStack {
-            HStack {
-                Spacer()
-                Image(systemName: "archivebox.circle.fill")
-                    .resizable()
-                    .frame(width: 24, height: 24)
-                    .foregroundColor(.blue)
-                    .background(Color.white)
-                    .clipShape(Circle())
-            }
-            Spacer()
-        }
-        .padding(SearchView.gridSpacing)
-    }
-    
-    private func datatimeOverlay(_ date: Date) -> some View {
-        VStack {
-            Spacer()
-            HStack {
-                Text(date, format: .dateTime)
-                    .font(.caption)
-                    .foregroundStyle(.black.opacity(0.5))
-                    .padding(8)
-                    .background(.thinMaterial)
-                    .clipShape(.capsule)
-                Spacer()
-            }
-        }
-        .padding(Self.gridSpacing)
-    }
 }
 
 // MARK: - View Contant
@@ -127,13 +85,13 @@ extension SearchView {
 }
 
 // MARK: - Preview
-//#Preview {
-//    SearchView(
-//        store: Store(
-//            initialState:
-//                SearchFeature.State()
-//        ) {
-//            SearchFeature()
-//        }
-//    )
-//}
+#Preview {
+    SearchView(
+        store: Store(
+            initialState:
+                SearchFeature.State()
+        ) {
+            SearchFeature()
+        }
+    )
+}

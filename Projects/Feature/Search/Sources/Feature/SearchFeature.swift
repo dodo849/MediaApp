@@ -95,10 +95,15 @@ public struct SearchFeature {
                 switch viewAction {
                 case .searchKeywordChanged(let text):
                     state.searchKeyword = text
+                    
+                    if state.searchKeyword.isEmpty {
+                        return .none
+                    }
+                    
                     return .send(.inner(.searchMedia))
                         .debounce(
                             id: DebounceID(),
-                            for: 1.5,
+                            for: 0.3,
                             scheduler: DispatchQueue.main
                         )
                     
