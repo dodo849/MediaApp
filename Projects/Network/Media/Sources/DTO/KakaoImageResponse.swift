@@ -28,3 +28,15 @@ public struct KakaoImageResponse: Codable {
         public let datetime: String // ISO 8601 format
     }
 }
+
+// MARK: - Extension
+public extension KakaoImageResponse {
+    static let empty = KakaoImageResponse(
+        meta: Meta(
+            total_count: 0,
+            pageable_count: 0,
+            is_end: true
+        ),
+        documents: []
+    )
+}

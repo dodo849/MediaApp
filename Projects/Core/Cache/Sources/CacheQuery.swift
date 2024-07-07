@@ -88,12 +88,11 @@ public class CacheQuery<Key: CacheQueryKey> {
             else { throw CacheQueryError.instanceAccessError }
             
             let uniqueKey = "\(key.key)"
-            print(uniqueKey)
             let nsKey = NSString(string: uniqueKey)
             
             // 캐시된 데이터가 있는지, 있다면 만료되지 않았는지 확인
             if let cachedData = self.cache.object(forKey: nsKey) as NSData? {
-                self.logger.info("Use the cached data")
+                self.logger.info("Use the cached data. key: \(uniqueKey)")
                 let decoder = JSONDecoder()
                 do {
                     let cachedEntry = try decoder.decode(CacheEntry<Value>.self, from: cachedData as Data)
@@ -113,7 +112,7 @@ public class CacheQuery<Key: CacheQueryKey> {
             }
             
             // 쿼리를 실행하고 결과를 캐시
-            self.logger.info("Use the query method to fetch new data")
+            self.logger.info("Use the query method to fetch new data. key: \(uniqueKey)")
             let result = try await query()
             let expiryDate = Date().addingTimeInterval(TimeInterval(expiry))
             let cacheEntry = CacheEntry(value: result, expiryDate: expiryDate)

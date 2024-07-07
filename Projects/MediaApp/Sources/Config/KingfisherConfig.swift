@@ -16,11 +16,11 @@ struct KingfisherConfig {
         // 메모리 캐시 만료 시간 설정
         cache.memoryStorage.config.expiration = .seconds(60) // 5분
         
-        // Limit memory cache size to 100 MB.
+        // 메모리 캐시 전체 용량 제한 100 MB.
         cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024 // 100MB
         
-        // Limit memory cache to hold 100 images at most.
-        cache.memoryStorage.config.countLimit = 100
+        // 메모리 캐시 이미지 개수 제한
+        cache.memoryStorage.config.countLimit = 100 // 100개
         
         // 디스크 캐시 만료 시간 설정
         cache.diskStorage.config.expiration = .days(7) // 7일

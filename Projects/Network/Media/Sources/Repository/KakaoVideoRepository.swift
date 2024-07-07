@@ -11,6 +11,9 @@ import Alamofire
 import Dependencies
 
 public struct KakaoVideoRepository {
+    private static let maximumPage = 15
+    private static let miximumSize = 30
+    
     private let requestURL = "\(InfoConfig.baseURL.get)/vclip"
     private let apiKey = InfoConfig.kakaoRestKey.get
     
@@ -22,9 +25,12 @@ public struct KakaoVideoRepository {
         page: Int = 1,
         size: Int = 20
     ) async throws -> KakaoVideoResponse {
-        // TODO: Last page 확인 절차 필요
-        assert((1...15).contains(page), "Page must be between 1 and 15")
-        assert((1...30).contains(size), "Size must be between 1 and 30")
+        if page > Self.maximumPage {
+            return .empty
+        }
+        
+        assert((1...Self.maximumPage).contains(page), "Page must be between 1 and 15")
+        assert((1...Self.miximumSize).contains(size), "Size must be between 1 and 30")
         
         let parameters: [String: Any] = [
             "query": query,

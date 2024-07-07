@@ -26,3 +26,15 @@ public struct KakaoVideoResponse: Codable {
         public let author: String
     }
 }
+
+// MARK: - Extension
+public extension KakaoVideoResponse {
+    static let empty = KakaoVideoResponse(
+        meta: Meta(
+            total_count: 0,
+            pageable_count: 0,
+            is_end: true
+        ),
+        documents: []
+    )
+}

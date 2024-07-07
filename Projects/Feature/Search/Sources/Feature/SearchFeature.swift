@@ -19,10 +19,23 @@ public struct SearchFeature {
     // MARK: State
     @ObservableState
     public struct State: Equatable {
+        /// 검색 키워드
         var searchKeyword: String = ""
+        /// 검색된 미디어(이미지 & 동영상)
         var media: [SearchMediaContentModel] = []
+        /// 선택된(스크랩된 미디어)
         var selectedContent: [SearchMediaContentModel] = []
-        var lastPage: Int = 0
+        /// 이미지 검색 페이지 정보
+        var imagePaging: Paging = Paging()
+        /// 동영상 검색 페이지 정보
+        var videoPaging: Paging = Paging()
+        
+        struct Paging: Equatable {
+            /// 현재 키워드로 조회한 마지막 페이지
+            var page: Int = 0
+            /// 마지막 페이지 여부
+            var isLastPage: Bool = false
+        }
         
         public init() { }
     }
@@ -32,6 +45,8 @@ public struct SearchFeature {
         case searchKeywordChanged(String)
         case searchMedia
         case loadMoreMedia
+        case imagePageIsLast
+        case videoPageIsLast
         case addMedia([SearchMediaContentModel])
         case selectContent(SearchMediaContentModel)
         case selectContents([SearchMediaContentModel])
@@ -67,26 +82,63 @@ public struct SearchFeature {
                 
             case .searchMedia:
                 state.media.removeAll()
-                state.lastPage = 0
+                state.imagePaging = .init()
+                state.videoPaging = .init()
                 return .send(.loadMoreMedia)
                 
+            case .imagePageIsLast:
+                state.imagePaging.isLastPage = true
+                return .none
+                
+            case .videoPageIsLast:
+                state.videoPaging.isLastPage = true
+                return .none
+                
             case .loadMoreMedia:
-                state.lastPage += 1
+                state.imagePaging.page += 1
+                state.videoPaging.page += 1
+                
+                let imageTargetPage = state.imagePaging.page
+                let videoTargetPage = state.videoPaging.page
+                let isLastImagePage = state.imagePaging.isLastPage
+                let isLastVideoPage = state.videoPaging.isLastPage
+                
                 let searchKeyword = state.searchKeyword
-                let targetPage = state.lastPage
                 return .run { send in
                     do {
-                        let mediaModels = try await fetchMediaContent(
-                            query: searchKeyword,
-                            page: targetPage
+                        /// 이미지 및 동영상 요청
+                        async let fetchImages = fetchImageContents(
+                            keyword: searchKeyword,
+                            page: imageTargetPage,
+                            isLastPage: isLastImagePage
                         )
-                        await send(.addMedia(mediaModels))
+                        async let fetchVideos = fetchVideoContents(
+                            keyword: searchKeyword,
+                            page: videoTargetPage,
+                            isLastPage: isLastVideoPage
+                        )
                         
+                        let (images, videos) = try await (fetchImages, fetchVideos)
+                        
+                        if images.meta.is_end {
+                            await send(.imagePageIsLast)
+                        }
+                        if videos.meta.is_end {
+                            await send(.videoPageIsLast)
+                        }
+                        
+                        let mergedMediaContents = mergeMediaContents(
+                            images: images,
+                            videos: videos
+                        )
+                        
+                        await send(.addMedia(mergedMediaContents))
+                        
+                        /// 스크랩 여부 확인
                         let scrapedContents = try await compareIsScrapped(
-                            searchContents: mediaModels
+                            searchContents: mergedMediaContents
                         )
                         await send(.selectContents(scrapedContents))
-                        
                     } catch {
                         logger.error("\(error.localizedDescription)")
                     }
@@ -130,40 +182,60 @@ public struct SearchFeature {
         }
     }
     
-    func fetchMediaContent(
-        query: String,
-        page: Int
-    ) async throws -> [SearchMediaContentModel] {
+    private func fetchImageContents(
+        keyword: String,
+        page: Int,
+        isLastPage: Bool
+    ) async throws -> KakaoImageResponse {
+        if isLastPage {
+            return .empty
+        }
+        
+        // CacheQuery를 이용해 서버데이터 캐싱
         let imageCacheQuery = cacheQuery.makeQuery(
             key: KakaoMediaFetchQueryKey.image(
-                keyword: query,
+                keyword: keyword,
                 page: page,
                 size: 20
             ),
             expiry: KakaoMediaFetchQueryKey.expiry
         ) {
             try await kakaoImageRepository
-                .searchImages(query: query, page: page)
+                .searchImages(query: keyword, page: page)
         }
         
+        return try await imageCacheQuery()
+    }
+    
+    private func fetchVideoContents(
+        keyword: String,
+        page: Int,
+        isLastPage: Bool
+    ) async throws -> KakaoVideoResponse {
+        if isLastPage {
+            return .empty
+        }
+        
+        // CacheQuery를 이용해 서버데이터 캐싱
         let videoCacheQuery = cacheQuery.makeQuery(
             key: KakaoMediaFetchQueryKey.video(
-                keyword: query,
+                keyword: keyword,
                 page: page,
                 size: 20
             ),
             expiry: KakaoMediaFetchQueryKey.expiry
         ) {
             try await kakaoVideoRepository
-                .searchVideos(query: query, page: page)
+                .searchVideos(query: keyword, page: page)
         }
         
-        // 병렬 처리
-        async let imageResponse = imageCacheQuery()
-        async let videoResponse = videoCacheQuery()
-        
-        let (images, videos) = try await (imageResponse, videoResponse)
-        
+        return try await videoCacheQuery()
+    }
+    
+    private func mergeMediaContents(
+        images: KakaoImageResponse,
+        videos: KakaoVideoResponse
+    ) -> [SearchMediaContentModel] {
         let imageModels = ModelConverter.convert(images)
         let videoModels = ModelConverter.convert(videos)
         
@@ -174,10 +246,10 @@ public struct SearchFeature {
         return sortedModels
     }
     
-    func compareIsScrapped(
+    private func compareIsScrapped(
         searchContents: [SearchMediaContentModel]
     ) async throws -> [SearchMediaContentModel] {
-        // Fetch all scraped images and videos
+        // 스크랩된 모든 비디오, 이미지 가져오기
         async let persistenceImages = persistenceImageRepository
             .getAllScrapImage()
         async let persistenceVideos = persistenceVideoRepository
@@ -194,7 +266,7 @@ public struct SearchFeature {
         
         let mergedModels = imageModels + videoModels
         
-        // Compare search contents with scraped images and videos using id
+        // 검색 결과와 비교해 스크랩된 미디어가 있는지 확인
         let searchContentIds = searchContents.map { $0.id }
         let scrappedContents = mergedModels
             .filter { searchContentIds.contains($0.id) }
@@ -223,4 +295,9 @@ private enum KakaoMediaFetchQueryKey: CacheQueryKey {
     case video(keyword: String, page: Int, size: Int)
     
     static var expiry: TimeInterval { 60 * 5 }
+}
+
+private enum KakaoMediaFetchError: Error {
+    case isLastImagePage
+    case isLastVideoPage
 }
