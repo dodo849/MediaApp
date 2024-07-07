@@ -16,6 +16,8 @@ public struct SearchView: View {
     public typealias ViewAction = SearchFeature.ViewAction
     public typealias ViewState = SearchFeature.State
     
+    @FocusState private var textFieldFocus: Bool
+    
     @Perception.Bindable private var store: Store<ViewState, ViewAction>
     
     public init(store: StoreOf<SearchFeature>) {
@@ -29,12 +31,11 @@ public struct SearchView: View {
         WithPerceptionTracking {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Text("Search")
-                        .font(.headline)
-                    
-                    SearchBar(text: $store
-                        .searchKeyword.sending(\.searchKeywordChanged)
+                    SearchBar(
+                        text: $store.searchKeyword
+                            .sending(\.searchKeywordChanged)
                     )
+                    .focused($textFieldFocus)
                     
                     LazyVGrid(
                         columns: [
@@ -54,6 +55,7 @@ public struct SearchView: View {
                             
                             MediaCell(
                                 imageURL: content.thumbnailURL,
+                                isSelected: store.selectedContent.contains(content),
                                 playTime: playTime,
                                 date: content.datetime
                             ).onTapGesture {
@@ -72,6 +74,9 @@ public struct SearchView: View {
                     }
                 }
                 .padding(Self.gridSpacing)
+                .onAppear {
+                    textFieldFocus = true
+                }
             }
         }
     }

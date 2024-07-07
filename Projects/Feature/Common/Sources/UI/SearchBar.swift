@@ -32,10 +32,6 @@ public struct SearchBar: View {
         .background(.gray.opacity(0.1))
         .foregroundStyle(.black.opacity(0.7))
         .clipShape(Capsule())
-        .overlay(
-            Capsule()
-                .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-        )
     }
 }
 

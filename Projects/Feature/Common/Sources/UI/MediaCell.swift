@@ -34,7 +34,7 @@ public struct MediaCell: View {
                 .placeholder({ SkeletonView() })
                 .fade(duration: 0.5)
                 .resizable()
-                .aspectRatio(contentMode: .fill)
+                .aspectRatio(contentMode: .fit)
                 .cornerRadius(Self.imageRadius)
                 .overlay(
                     RoundedRectangle(cornerRadius: Self.imageRadius)

@@ -26,14 +26,19 @@ public struct ScrapView: View {
     public var body: some View {
         WithPerceptionTracking {
             ScrollView {
-                VStack(alignment: .leading) {
+                VStack(alignment: .leading, spacing: 16) {
                     SearchBar(text: .constant(""), isDummy: true)
                         .onTapGesture {
                             store.send(.presentSearchView)
                         }
                     
-                    Text("스크랩")
-                        .font(.system(size: 24, weight: .bold))
+                    HStack {
+                        Image(systemName: "archivebox")
+                            .resizable()
+                            .frame(width: 22, height: 22)
+                        Text("스크랩")
+                            .font(.system(size: 24, weight: .bold))
+                    }
                     
                     LazyVGrid(
                         columns: [
@@ -73,7 +78,7 @@ public struct ScrapView: View {
                         label: { }
                     )
                 }
-                .padding(Self.gridSpacing)
+                .padding(Self.pageSpacing)
             }
             .onAppear {
                 store.send(.onAppear)
@@ -84,6 +89,7 @@ public struct ScrapView: View {
 
 // MARK: - View Contant
 extension ScrapView {
+    static let pageSpacing: CGFloat = 16
     static let gridSpacing: CGFloat = 8
     static let imageRadius: CGFloat = 4
 }
