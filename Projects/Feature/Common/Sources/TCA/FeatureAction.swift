@@ -8,24 +8,24 @@
 import Foundation
 
 public protocol FeatureAction {
-  associatedtype ViewAction
-  associatedtype InnerAction
-  associatedtype AsyncAction
-  associatedtype ScopeAction
-  associatedtype DelegateAction
-
-  // NOTE: view 에서 사용되는 Action 을 정의합니다.
-  static func view(_: ViewAction) -> Self
-
-  // NOTE: 그 외 Reducer 내부적으로 사용되는 Action 을 정의합니다.
-  static func inner(_: InnerAction) -> Self
-
-  // NOTE: 비동기적으로 돌아가는 Action 을 정의합니다.
-  static func async(_: AsyncAction) -> Self
-
-  // NOTE: 자식 Redcuer 에서 사용되는 Action 을 정의합니다.
-  static func scope(_: ScopeAction) -> Self
-
-  // NOTE: 부모 Reducer 에서 사용되는 Action 을 정의합니다.
-  static func delegate(_: DelegateAction) -> Self
+    associatedtype ViewAction
+    associatedtype InnerAction
+    associatedtype AsyncAction
+    associatedtype ScopeAction
+    associatedtype DelegateAction
+    
+    /// View에서 접근하는 Action
+    static func view(_: ViewAction) -> Self
+    
+    /// Reducer 내부적으로 사용되는 Action
+    static func inner(_: InnerAction) -> Self
+    
+    /// 비동기 처리를 수행하는 Action
+    static func async(_: AsyncAction) -> Self
+    
+    /// 자식에세 전달하는 Action
+    static func scope(_: ScopeAction) -> Self
+    
+    /// 부모에서 주입받는 Action
+    static func delegate(_: DelegateAction) -> Self
 }
