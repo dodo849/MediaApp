@@ -28,8 +28,8 @@ public struct KakaoImageRepository {
             return .empty
         }
         
-        assert((1...Self.maximumPage).contains(page), "Page must be between 1 and 50")
-        assert((1...Self.miximumSize).contains(size), "Size must be between 1 and 80")
+        assert((1...Self.maximumPage).contains(page), "Page must be between 1 and \(Self.maximumPage)")
+        assert((1...Self.miximumSize).contains(size), "Size must be between 1 and \(Self.miximumSize)")
         
         let parameters: [String: Any] = [
             "query": query,

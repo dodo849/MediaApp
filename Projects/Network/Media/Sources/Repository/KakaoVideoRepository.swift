@@ -29,8 +29,8 @@ public struct KakaoVideoRepository {
             return .empty
         }
         
-        assert((1...Self.maximumPage).contains(page), "Page must be between 1 and 15")
-        assert((1...Self.miximumSize).contains(size), "Size must be between 1 and 30")
+        assert((1...Self.maximumPage).contains(page), "Page must be between 1 and \(Self.maximumPage)")
+        assert((1...Self.miximumSize).contains(size), "Size must be between 1 and \(Self.miximumSize)")
         
         let parameters: [String: Any] = [
             "query": query,
