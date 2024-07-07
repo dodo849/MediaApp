@@ -40,7 +40,7 @@
     - `Cache`: 서버 데이터 캐싱
 
 ## 라이브러리
-이름 | 용도 | 버전 | Git
+라이브러리명 | 용도 | 버전 | Git
 |--|--|--|--|
 swift-composable-architecture |	상태관리 	| 1.11.0 이상| [swift-composable-architecture](https://github.com/pointfreeco/swift-composable-architecture.git)
 swift-dependencies |의존성 주입| 1.0.0 이상| [swift-dependencies](https://github.com/pointfreeco/swift-dependencies)
