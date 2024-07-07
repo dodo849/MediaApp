@@ -13,6 +13,7 @@ import Dependencies
 public struct KakaoImageRepository {
     private static let maximumPage = 50
     private static let miximumSize = 80
+    
     private let requestURL = "\(InfoConfig.baseURL.get)/image"
     private let apiKey = InfoConfig.kakaoRestKey.get
     

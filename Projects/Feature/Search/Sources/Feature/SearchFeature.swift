@@ -7,6 +7,7 @@
 
 import OSLog
 
+import CommonFeature
 import CacheCore
 import MediaNetwork
 import MediaDatabase
@@ -41,17 +42,36 @@ public struct SearchFeature {
     }
     
     // MARK: Action
-    public enum Action {
+    public enum Action: FeatureAction, Equatable {
+        case view(ViewAction)
+        case inner(InnerAction)
+        case async(AsyncAction)
+        case scope(ScopeAction)
+        case delegate(DelegateAction)
+    }
+    
+    @CasePathable
+    public enum ViewAction: Equatable {
         case searchKeywordChanged(String)
-        case searchMedia
+        case selectContent(SearchMediaContentModel)
+        case deselectContent(SearchMediaContentModel)
         case loadMoreMedia
+    }
+    
+    public enum InnerAction: Equatable {
+        case searchMedia
         case imagePageIsLast
         case videoPageIsLast
         case addMedia([SearchMediaContentModel])
-        case selectContent(SearchMediaContentModel)
         case selectContents([SearchMediaContentModel])
-        case deselectContent(SearchMediaContentModel)
     }
+    
+    public enum AsyncAction: Equatable {
+        case fetchMedia
+    }
+    
+    public enum ScopeAction: Equatable { }
+    public enum DelegateAction: Equatable { }
     
     // MARK: Dependency
     private let logger = Logger(
@@ -71,113 +91,125 @@ public struct SearchFeature {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .searchKeywordChanged(let text):
-                state.searchKeyword = text
-                return .send(.searchMedia)
-                    .debounce(
-                        id: DebounceID(),
-                        for: 1.5,
-                        scheduler: DispatchQueue.main
-                    )
-                
-            case .searchMedia:
-                state.media.removeAll()
-                state.imagePaging = .init()
-                state.videoPaging = .init()
-                return .send(.loadMoreMedia)
-                
-            case .imagePageIsLast:
-                state.imagePaging.isLastPage = true
-                return .none
-                
-            case .videoPageIsLast:
-                state.videoPaging.isLastPage = true
-                return .none
-                
-            case .loadMoreMedia:
-                state.imagePaging.page += 1
-                state.videoPaging.page += 1
-                
-                let imageTargetPage = state.imagePaging.page
-                let videoTargetPage = state.videoPaging.page
-                let isLastImagePage = state.imagePaging.isLastPage
-                let isLastVideoPage = state.videoPaging.isLastPage
-                
-                let searchKeyword = state.searchKeyword
-                return .run { send in
-                    do {
-                        /// 이미지 및 동영상 요청
-                        async let fetchImages = fetchImageContents(
-                            keyword: searchKeyword,
-                            page: imageTargetPage,
-                            isLastPage: isLastImagePage
+            case .view(let viewAction):
+                switch viewAction {
+                case .searchKeywordChanged(let text):
+                    state.searchKeyword = text
+                    return .send(.inner(.searchMedia))
+                        .debounce(
+                            id: DebounceID(),
+                            for: 1.5,
+                            scheduler: DispatchQueue.main
                         )
-                        async let fetchVideos = fetchVideoContents(
-                            keyword: searchKeyword,
-                            page: videoTargetPage,
-                            isLastPage: isLastVideoPage
-                        )
-                        
-                        let (images, videos) = try await (fetchImages, fetchVideos)
-                        
-                        if images.meta.is_end {
-                            await send(.imagePageIsLast)
+                    
+                case .selectContent(let content):
+                    state.selectedContent.append(content)
+                    return .run { _ in
+                        switch content.contentType {
+                        case .image:
+                            let persistenceModel: PersistenceScrapImageModel = ModelConverter
+                                .convert(content)
+                            persistenceImageRepository.saveScrapImage(persistenceModel)
+                        case .video:
+                            let persistenceModel: PersistenceScrapVideoModel = ModelConverter
+                                .convert(content)
+                            persistenceVideoRepository.saveScrapVideo(persistenceModel)
                         }
-                        if videos.meta.is_end {
-                            await send(.videoPageIsLast)
-                        }
-                        
-                        let mergedMediaContents = mergeMediaContents(
-                            images: images,
-                            videos: videos
-                        )
-                        
-                        await send(.addMedia(mergedMediaContents))
-                        
-                        /// 스크랩 여부 확인
-                        let scrapedContents = try await compareIsScrapped(
-                            searchContents: mergedMediaContents
-                        )
-                        await send(.selectContents(scrapedContents))
-                    } catch {
-                        logger.error("\(error.localizedDescription)")
                     }
-                }
-                
-            case .addMedia(let media):
-                state.media.append(contentsOf: media)
-                return .none
-                
-            case .selectContent(let content):
-                state.selectedContent.append(content)
-                return .run { _ in
+                    
+                case .deselectContent(let content):
+                    state.selectedContent.removeAll(where: { $0.id == content.id })
                     switch content.contentType {
                     case .image:
-                        let persistenceModel: PersistenceScrapImageModel = ModelConverter
-                            .convert(content)
-                        persistenceImageRepository.saveScrapImage(persistenceModel)
+                        persistenceImageRepository
+                            .deleteScrapImage(byImageID: content.id)
                     case .video:
-                        let persistenceModel: PersistenceScrapVideoModel = ModelConverter
-                            .convert(content)
-                        persistenceVideoRepository.saveScrapVideo(persistenceModel)
+                        persistenceVideoRepository
+                            .deleteScrapVideo(byVideoID: content.id)
+                    }
+                    return .none
+                    
+                case .loadMoreMedia:
+                    return .send(.async(.fetchMedia))
+                }
+                
+            case .inner(let innerAction):
+                switch innerAction {
+                case .searchMedia:
+                    state.media.removeAll()
+                    state.imagePaging = .init()
+                    state.videoPaging = .init()
+                    return .send(.async(.fetchMedia))
+                    
+                case .imagePageIsLast:
+                    state.imagePaging.isLastPage = true
+                    return .none
+                    
+                case .videoPageIsLast:
+                    state.videoPaging.isLastPage = true
+                    return .none
+                    
+                case .addMedia(let media):
+                    state.media.append(contentsOf: media)
+                    return .none
+                    
+                case .selectContents(let contents):
+                    state.selectedContent.append(contentsOf: contents)
+                    return .none
+                }
+                
+            case .async(let asyncAction):
+                switch asyncAction {
+                case .fetchMedia:
+                    state.imagePaging.page += 1
+                    state.videoPaging.page += 1
+                    
+                    let imageTargetPage = state.imagePaging.page
+                    let videoTargetPage = state.videoPaging.page
+                    let isLastImagePage = state.imagePaging.isLastPage
+                    let isLastVideoPage = state.videoPaging.isLastPage
+                    
+                    let searchKeyword = state.searchKeyword
+                    return .run { send in
+                        do {
+                            /// 이미지 및 동영상 요청
+                            async let fetchImages = fetchImageContents(
+                                keyword: searchKeyword,
+                                page: imageTargetPage,
+                                isLastPage: isLastImagePage
+                            )
+                            async let fetchVideos = fetchVideoContents(
+                                keyword: searchKeyword,
+                                page: videoTargetPage,
+                                isLastPage: isLastVideoPage
+                            )
+                            
+                            let (images, videos) = try await (fetchImages, fetchVideos)
+                            
+                            if images.meta.is_end {
+                                await send(.inner(.imagePageIsLast))
+                            }
+                            if videos.meta.is_end {
+                                await send(.inner(.videoPageIsLast))
+                            }
+                            
+                            let mergedMediaContents = mergeMediaContents(
+                                images: images,
+                                videos: videos
+                            )
+                            
+                            await send(.inner(.addMedia(mergedMediaContents)))
+                            
+                            /// 스크랩 여부 확인
+                            let scrapedContents = try await compareIsScrapped(
+                                searchContents: mergedMediaContents
+                            )
+                            await send(.inner(.selectContents(scrapedContents)))
+                        } catch {
+                            logger.error("\(error.localizedDescription)")
+                        }
                     }
                 }
-                
-            case .selectContents(let contents):
-                state.selectedContent.append(contentsOf: contents)
-                return .none
-                
-            case .deselectContent(let content):
-                state.selectedContent.removeAll(where: { $0.id == content.id })
-                switch content.contentType {
-                case .image:
-                    persistenceImageRepository
-                        .deleteScrapImage(byImageID: content.id)
-                case .video:
-                    persistenceVideoRepository
-                        .deleteScrapVideo(byVideoID: content.id)
-                }
-                return .none
             }
         }
     }

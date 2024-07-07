@@ -13,10 +13,16 @@ import ComposableArchitecture
 import Kingfisher
 
 public struct SearchView: View {
-    @Perception.Bindable var store: StoreOf<SearchFeature>
+    public typealias ViewAction = SearchFeature.ViewAction
+    public typealias ViewState = SearchFeature.State
+    
+    @Perception.Bindable private var store: Store<ViewState, ViewAction>
     
     public init(store: StoreOf<SearchFeature>) {
-        self.store = store
+        self.store = store.scope(
+            state: \.self,
+            action: \.view
+        )
     }
     
     public var body: some View {
@@ -121,13 +127,13 @@ extension SearchView {
 }
 
 // MARK: - Preview
-#Preview {
-    SearchView(
-        store: Store(
-            initialState:
-                SearchFeature.State()
-        ) {
-            SearchFeature()
-        }
-    )
-}
+//#Preview {
+//    SearchView(
+//        store: Store(
+//            initialState:
+//                SearchFeature.State()
+//        ) {
+//            SearchFeature()
+//        }
+//    )
+//}

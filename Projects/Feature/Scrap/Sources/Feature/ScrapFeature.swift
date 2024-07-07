@@ -65,7 +65,7 @@ public struct ScrapFeature {
                 }
                 
             case .presentSearchView:
-                state.destination = .search(.init())
+                state.destination = .search(SearchFeature.State())
                 return .none
                 
             case .destination(.dismiss):
