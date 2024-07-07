@@ -53,13 +53,13 @@ public struct KakaoVideoRepository {
 }
 
 // MARK: - Dependency
-private enum KakaoVideoRepositoryKey: DependencyKey {
+private enum KakaoVideoRepositoryDependencyKey: DependencyKey {
     static let liveValue: KakaoVideoRepository = KakaoVideoRepository()
 }
 
 public extension DependencyValues {
   var kakaoVideoRepository: KakaoVideoRepository {
-    get { self[KakaoVideoRepositoryKey.self] }
-    set { self[KakaoVideoRepositoryKey.self] = newValue }
+    get { self[KakaoVideoRepositoryDependencyKey.self] }
+    set { self[KakaoVideoRepositoryDependencyKey.self] = newValue }
   }
 }

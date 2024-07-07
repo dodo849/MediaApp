@@ -75,13 +75,13 @@ public class PersistenceVideoRepository {
 }
 
 // MARK: - Dependency
-private enum PersistenceVideoRepositoryKey: DependencyKey {
+private enum PersistenceVideoRepositoryDependencyKey: DependencyKey {
     static let liveValue: PersistenceVideoRepository = PersistenceVideoRepository()
 }
 
 public extension DependencyValues {
   var persistenceVideoRepository: PersistenceVideoRepository {
-    get { self[PersistenceVideoRepositoryKey.self] }
-    set { self[PersistenceVideoRepositoryKey.self] = newValue }
+    get { self[PersistenceVideoRepositoryDependencyKey.self] }
+    set { self[PersistenceVideoRepositoryDependencyKey.self] = newValue }
   }
 }

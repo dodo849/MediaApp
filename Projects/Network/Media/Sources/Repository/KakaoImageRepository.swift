@@ -52,13 +52,13 @@ public struct KakaoImageRepository {
 }
 
 // MARK: - Dependency
-private enum KakaoImageRepositoryKey: DependencyKey {
+private enum KakaoImageRepositoryDependencyKey: DependencyKey {
     static let liveValue: KakaoImageRepository = KakaoImageRepository()
 }
 
 public extension DependencyValues {
   var kakaoImageRepository: KakaoImageRepository {
-    get { self[KakaoImageRepositoryKey.self] }
-    set { self[KakaoImageRepositoryKey.self] = newValue }
+    get { self[KakaoImageRepositoryDependencyKey.self] }
+    set { self[KakaoImageRepositoryDependencyKey.self] = newValue }
   }
 }

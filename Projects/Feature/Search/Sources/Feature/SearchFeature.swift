@@ -39,14 +39,15 @@ public struct SearchFeature {
     }
     
     // MARK: Dependency
-    let logger = Logger(
+    private let logger = Logger(
         subsystem: Bundle.module.bundleIdentifier!,
         category: "SearchFeature"
     )
-    @Dependency(\.kakaoImageRepository) var kakaoImageRepository
-    @Dependency(\.kakaoVideoRepository) var kakaoVideoRepository
-    @Dependency(\.persistenceImageRepository) var persistenceImageRepository
-    @Dependency(\.persistenceVideoRepository) var persistenceVideoRepository
+    @Dependency(\.cacheQuery) private var cacheQuery
+    @Dependency(\.kakaoImageRepository) private var kakaoImageRepository
+    @Dependency(\.kakaoVideoRepository) private var kakaoVideoRepository
+    @Dependency(\.persistenceImageRepository) private var persistenceImageRepository
+    @Dependency(\.persistenceVideoRepository) private var persistenceVideoRepository
     
     // MARK: Initializer
     public init() { }
@@ -73,7 +74,6 @@ public struct SearchFeature {
                 state.lastPage += 1
                 let searchKeyword = state.searchKeyword
                 let targetPage = state.lastPage
-                print(targetPage)
                 return .run { send in
                     do {
                         let mediaModels = try await fetchMediaContent(
@@ -129,19 +129,12 @@ public struct SearchFeature {
             }
         }
     }
-        
-    enum KakaoMediaFetchQueryKey: CacheQueryKey {
-        case image(keyword: String, page: Int, size: Int)
-        case video(keyword: String, page: Int, size: Int)
-        
-        static var expiry: TimeInterval { 60 * 5 }
-    }
     
     func fetchMediaContent(
         query: String,
         page: Int
     ) async throws -> [SearchMediaContentModel] {
-        let imageCacheQuery = CacheQuery.shared.makeQuery(
+        let imageCacheQuery = cacheQuery.makeQuery(
             key: KakaoMediaFetchQueryKey.image(
                 keyword: query,
                 page: page,
@@ -153,7 +146,7 @@ public struct SearchFeature {
                 .searchImages(query: query, page: page)
         }
         
-        let videoCacheQuery = CacheQuery.shared.makeQuery(
+        let videoCacheQuery = cacheQuery.makeQuery(
             key: KakaoMediaFetchQueryKey.video(
                 keyword: query,
                 page: page,
@@ -208,6 +201,26 @@ public struct SearchFeature {
         
         return scrappedContents
     }
+}
+
+// MARK: - Dependency
+private enum KakaoMediaFetchQueryDependencyKey: DependencyKey {
+    static let liveValue: CacheQuery<KakaoMediaFetchQueryKey> = CacheQuery<KakaoMediaFetchQueryKey>()
+}
+
+private extension DependencyValues {
+    var cacheQuery: CacheQuery<KakaoMediaFetchQueryKey> {
+        get { self[KakaoMediaFetchQueryDependencyKey.self] }
+        set { self[KakaoMediaFetchQueryDependencyKey.self] = newValue }
+    }
+}
+
+// MARK: - Private type
+private struct DebounceID: Hashable {}
+
+private enum KakaoMediaFetchQueryKey: CacheQueryKey {
+    case image(keyword: String, page: Int, size: Int)
+    case video(keyword: String, page: Int, size: Int)
     
-    private struct DebounceID: Hashable {}
+    static var expiry: TimeInterval { 60 * 5 }
 }

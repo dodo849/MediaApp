@@ -75,13 +75,13 @@ public class PersistenceImageRepository {
 }
 
 // MARK: - Dependency
-private enum PersistenceImageRepositoryKey: DependencyKey {
+private enum PersistenceImageRepositoryDependencyKey: DependencyKey {
     static let liveValue: PersistenceImageRepository = PersistenceImageRepository()
 }
 
 public extension DependencyValues {
   var persistenceImageRepository: PersistenceImageRepository {
-    get { self[PersistenceImageRepositoryKey.self] }
-    set { self[PersistenceImageRepositoryKey.self] = newValue }
+    get { self[PersistenceImageRepositoryDependencyKey.self] }
+    set { self[PersistenceImageRepositoryDependencyKey.self] = newValue }
   }
 }
