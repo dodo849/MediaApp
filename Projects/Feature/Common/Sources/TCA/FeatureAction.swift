@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Feature Action 분리를 위한 프로토콜
 public protocol FeatureAction {
     associatedtype ViewAction
     associatedtype InnerAction
@@ -23,7 +24,7 @@ public protocol FeatureAction {
     /// 비동기 처리를 수행하는 Action
     static func async(_: AsyncAction) -> Self
     
-    /// 자식에세 전달하는 Action
+    /// 자식에게 전달하는 Action
     static func scope(_: ScopeAction) -> Self
     
     /// 부모에서 주입받는 Action
