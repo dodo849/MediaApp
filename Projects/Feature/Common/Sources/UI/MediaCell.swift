@@ -34,7 +34,7 @@ public struct MediaCell: View {
                 .placeholder({ SkeletonView() })
                 .fade(duration: 0.5)
                 .resizable()
-                .aspectRatio(contentMode: .fit)
+                .aspectRatio(contentMode: .fill)
                 .cornerRadius(Self.imageRadius)
                 .overlay(
                     RoundedRectangle(cornerRadius: Self.imageRadius)
@@ -84,21 +84,23 @@ public struct MediaCell: View {
                 if let playTime = playTime {
                     Text(formattedPlayTime(playTime))
                         .font(.caption)
-                        .foregroundStyle(.black.opacity(0.5))
-                        .padding(4)
-                        .background(.thinMaterial)
-                        .clipShape(Capsule())
+                        .foregroundStyle(.white)
+                        .padding(.vertical, 4)
+                        .padding(.horizontal, 8)
+                        .background(.black.opacity(0.2))
+                        .clipShape(RoundedRectangle(cornerRadius: 4))
                 }
                 Spacer()
             }
             HStack {
-                    
-                    Text(date, format: .dateTime)
-                        .font(.caption)
-                        .foregroundStyle(.black.opacity(0.5))
-                        .padding(4)
-                        .background(.thinMaterial)
-                        .clipShape(.capsule)
+                
+                Text(date, format: .dateTime)
+                    .font(.caption)
+                    .foregroundStyle(.white)
+                    .padding(.vertical,4)
+                    .padding(.horizontal, 8)
+                    .background(.black.opacity(0.2))
+                    .clipShape(RoundedRectangle(cornerRadius: 4))
                 Spacer()
             }
         }
@@ -117,4 +119,15 @@ public struct MediaCell: View {
 extension MediaCell {
     static let gridSpacing: CGFloat = 8
     static let imageRadius: CGFloat = 4
+}
+
+// MARK: - Preview
+#Preview {
+    MediaCell(
+        imageURL: "https://images.unsplash.com/photo-1425082661705-1834bfd09dca?fm=jpg&w=3000&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFtc3RlcnxlbnwwfHwwfHx8MA%3D%3D",
+        playTime: 60,
+        date: Date.now
+    )
+    .frame(height: 150)
+    .padding()
 }

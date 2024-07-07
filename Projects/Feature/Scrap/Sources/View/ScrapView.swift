@@ -27,14 +27,13 @@ public struct ScrapView: View {
         WithPerceptionTracking {
             ScrollView {
                 VStack(alignment: .leading) {
-                    Button {
-                        store.send(.presentSearchView)
-                    } label: {
-                        Text("Go Search")
-                    }
+                    SearchBar(text: .constant(""), isDummy: true)
+                        .onTapGesture {
+                            store.send(.presentSearchView)
+                        }
                     
                     Text("스크랩")
-                        .font(.headline)
+                        .font(.system(size: 24, weight: .bold))
                     
                     LazyVGrid(
                         columns: [

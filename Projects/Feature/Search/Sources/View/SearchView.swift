@@ -31,11 +31,10 @@ public struct SearchView: View {
                 VStack(alignment: .leading) {
                     Text("Search")
                         .font(.headline)
-                    TextField(
-                        "검색어를 입력해주세요",
-                        text: $store.searchKeyword.sending(\.searchKeywordChanged)
+                    
+                    SearchBar(text: $store
+                        .searchKeyword.sending(\.searchKeywordChanged)
                     )
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
                     
                     LazyVGrid(
                         columns: [
