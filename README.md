@@ -11,7 +11,7 @@
   |--|--|
   | View | 화면 스타일링 및 유저 액션 바인딩 |
   | Feature(TCA) | 상태관리 및 비즈니스 로직 수행 |
-  | Converter | 외부 모듈 데이터 타입을 Feature 데이터 타입으로 변환 |
+  | Converter | 외부 모듈 데이터 타입을 Feature 데이터 타입(Model)으로 변환 |
   | Model | View와 Feature에서 사용하는 데이터 타입 |
   - **세부모듈**
     - `Scrap`: 스크랩한 이미지/비디오 표시
@@ -22,7 +22,7 @@
   |구성|역할|
   |--|--|
   | Repository | 외부 API 접근 |
-  | DTO(Response) | 외부 API 데이터 스키마 | 
+  | Response(DTO) | 외부 API 데이터 스키마 | 
   -  **세부모듈**
     - `Media`: 이미지/비디오 관련 서버 데이터 접근
 - **Database**
