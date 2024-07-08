@@ -18,14 +18,15 @@ public struct ScrapView: View {
     public typealias ViewAction = ScrapFeature.ViewAction
     public typealias ViewState = ScrapFeature.State
     
-    @Perception.Bindable private var store: StoreOf<ScrapFeature>
+    private var originStore: StoreOf<ScrapFeature> // for navigation destination binding
+    @Perception.Bindable private var store: Store<ViewState, ViewAction>
     
     public init(store: StoreOf<ScrapFeature>) {
-//        self.store = store.scope(
-//            state: \.self,
-//            action: \.view
-//        )
-        self.store = store
+        self.store = store.scope(
+            state: \.self,
+            action: \.view
+        )
+        self.originStore = store
     }
     
     public var body: some View {
@@ -34,7 +35,7 @@ public struct ScrapView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     SearchBar(text: .constant(""), isDummy: true)
                         .onTapGesture {
-                            store.send(.view(.presentSearchView))
+                            store.send(.presentSearchView)
                         }
                     
                     HStack {
@@ -54,11 +55,11 @@ public struct ScrapView: View {
                 .padding(Self.pageSpacing)
             }
             .onAppear {
-                store.send(.view(.onAppear))
+                store.send(.onAppear)
             }
             .background {
                 NavigationLinkStore(
-                    store.scope(
+                    originStore.scope(
                         state: \.$destination.search,
                         action: \.destination.search
                     ),
