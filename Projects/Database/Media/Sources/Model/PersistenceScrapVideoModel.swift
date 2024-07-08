@@ -9,7 +9,7 @@ import Foundation
 
 import RealmSwift
 
-public class PersistenceScrapVideoModel: Object{
+public class PersistenceScrapVideoModel: Object {
     @Persisted public var id: ObjectId
     @Persisted public var videoID: String
     @Persisted public var thumbnailURL: String

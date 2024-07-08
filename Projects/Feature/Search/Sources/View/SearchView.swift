@@ -29,6 +29,11 @@ public struct SearchView: View {
         )
     }
     
+    func adress(_ object: UnsafeRawPointer) -> String {
+        let address = Int(bitPattern: object)
+        return NSString(format: "%p", address) as String
+    }
+    
     public var body: some View {
         WithPerceptionTracking {
             ScrollView {
@@ -59,44 +64,54 @@ public struct SearchView: View {
             emptySearchResultView
         }
         
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: Self.gridSpacing),
-                GridItem(.flexible(), spacing: Self.gridSpacing)
-            ],
-            spacing: Self.gridSpacing
-        ) {
-            ForEach(store.media) { content in
-                let playTime: TimeInterval? = {
-                    if case let .video(time) = content.contentType {
-                        return time
-                    } else {
-                        return nil
-                    }
-                }()
-                
-                MediaCell(
-                    imageURL: content.thumbnailURL,
-                    isSelected: store.selectedContent.contains(content),
-                    playTime: playTime,
-                    date: content.datetime
-                ).onTapGesture {
-                    if store.selectedContent.contains(content) {
-                        store.send(.deselectContent(content))
-                    } else {
-                        store.send(.selectContent(content))
-                    }
+        HStack(alignment: .top) {
+            LazyVGrid(columns: [.init(.flexible())]) {
+                ForEach(Array(store.media.enumerated()
+                    .filter { $0.offset.isMultiple(of: 2) }.map { $1 })
+                ) { content in
+                    mediaCell(content)
                 }
-                .onAppear {
-                    if content == store.media.last {
-                        store.send(.loadMoreMedia)
-                    }
+            }
+            
+            LazyVGrid(columns: [.init(.flexible())]) {
+                ForEach(Array(store.media.enumerated()
+                    .filter { !$0.offset.isMultiple(of: 2) }.map { $1 })
+                ) { content in
+                    mediaCell(content)
                 }
             }
         }
     }
     
-    var emptySearchResultView: some View {
+    private func mediaCell(_ content: SearchMediaContentModel) -> some View {
+        let playTime: TimeInterval? = {
+            if case let .video(time) = content.contentType {
+                return time
+            } else {
+                return nil
+            }
+        }()
+        
+        return MediaCell(
+            imageURL: content.thumbnailURL,
+            isSelected: store.selectedContent.contains(content),
+            playTime: playTime,
+            date: content.datetime
+        ).onTapGesture {
+            if store.selectedContent.contains(content) {
+                store.send(.deselectContent(content))
+            } else {
+                store.send(.selectContent(content))
+            }
+        }
+        .onAppear {
+            if content == store.media.last {
+                store.send(.loadMoreMedia)
+            }
+        }
+    }
+    
+    private var emptySearchResultView: some View {
         VStack(spacing: Self.emtpyViewSpacing) {
             Image(systemName: "list.bullet.indent")
                 .resizable()
@@ -110,7 +125,7 @@ public struct SearchView: View {
         .padding(.top, Self.screenHeight / 3)
     }
     
-    var networkIsNotConnectView: some View {
+    private var networkIsNotConnectView: some View {
         VStack(spacing: Self.emtpyViewSpacing) {
             Image(systemName: "wifi.exclamationmark")
                 .resizable()
@@ -126,7 +141,7 @@ public struct SearchView: View {
 }
 
 // MARK: - View Constant
-extension SearchView {
+private extension SearchView {
     static let gridSpacing: CGFloat = 8
     static let emtpyViewSpacing: CGFloat = 20
     static let emtpyImageWidth: CGFloat = 50
@@ -134,13 +149,13 @@ extension SearchView {
 }
 
 // MARK: - Preview
-#Preview {
-    SearchView(
-        store: Store(
-            initialState:
-                SearchFeature.State()
-        ) {
-            SearchFeature()
-        }
-    )
-}
+//#Preview {
+//    SearchView(
+//        store: Store(
+//            initialState:
+//                SearchFeature.State()
+//        ) {
+//            SearchFeature()
+//        }
+//    )
+//}

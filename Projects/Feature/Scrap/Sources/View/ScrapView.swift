@@ -18,6 +18,7 @@ public struct ScrapView: View {
     public typealias ViewAction = ScrapFeature.ViewAction
     public typealias ViewState = ScrapFeature.State
     
+    private var originStore: StoreOf<ScrapFeature> // for navigation destination binding
     @Perception.Bindable private var store: Store<ViewState, ViewAction>
     
     public init(store: StoreOf<ScrapFeature>) {
@@ -25,6 +26,7 @@ public struct ScrapView: View {
             state: \.self,
             action: \.view
         )
+        self.originStore = store
     }
     
     public var body: some View {
@@ -49,54 +51,64 @@ public struct ScrapView: View {
                     } else {
                         mediaList
                     }
-                    
-                    NavigationLink(
-                        item: $store.scope(
-                            state: \.destination?.search,
-                            action: \.destination.search
-                        ),
-                        onNavigate: { _ in },
-                        destination: { destinationStore in
-                            SearchView(
-                                store: destinationStore
-                            )
-                        },
-                        label: { }
-                    )
                 }
                 .padding(Self.pageSpacing)
             }
             .onAppear {
                 store.send(.onAppear)
             }
-        }
-    }
-    
-    var mediaList: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: Self.gridSpacing),
-                GridItem(.flexible(), spacing: Self.gridSpacing)
-            ],
-            spacing: Self.gridSpacing
-        ) {
-            ForEach(store.media) { content in
-                let playTime: TimeInterval? = {
-                    if case let .video(time) = content.contentType {
-                        return time
-                    } else {
-                        return nil
-                    }
-                }()
-                
-                MediaCell(
-                    imageURL: content.thumbnailURL,
-                    playTime: playTime,
-                    date: content.datetime
+            .background {
+                NavigationLinkStore(
+                    originStore.scope(
+                        state: \.$destination.search,
+                        action: \.destination.search
+                    ),
+                    onTap: { },
+                    destination: { SearchView(store: $0) },
+                    label: { EmptyView() }
                 )
             }
         }
     }
+    
+    @ViewBuilder
+    var mediaList: some View {
+        HStack(alignment: .top) {
+            LazyVGrid(columns: [.init(.flexible())]) {
+                ForEach(Array(store.media.enumerated()
+                    .filter { $0.offset.isMultiple(of: 2) }.map { $1 })
+                ) { content in
+                    mediaCell(content)
+                }
+            }
+            
+            LazyVGrid(columns: [.init(.flexible())]) {
+                ForEach(Array(store.media.enumerated()
+                    .filter { !$0.offset.isMultiple(of: 2) }.map { $1 })
+                ) { content in
+                    mediaCell(content)
+                }
+            }
+        }
+    }
+    
+    private func mediaCell(_ content: ScrapMediaContentModel) -> some View {
+        let playTime: TimeInterval? = {
+            if case let .video(time) = content.contentType {
+                return time
+            } else {
+                return nil
+            }
+        }()
+        
+        return MediaCell(
+            imageURL: content.thumbnailURL,
+            isSelected: false,
+            playTime: playTime,
+            date: content.datetime
+        )
+    }
+    
     
     var emptyScrapView: some View {
         VStack(spacing: Self.emtpyViewSpacing) {
@@ -114,7 +126,7 @@ public struct ScrapView: View {
 }
 
 // MARK: - View Constant
-extension ScrapView {
+private extension ScrapView {
     static let pageSpacing: CGFloat = 16
     static let gridSpacing: CGFloat = 8
     static let emtpyViewSpacing: CGFloat = 20

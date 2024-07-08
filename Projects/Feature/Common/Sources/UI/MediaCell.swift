@@ -97,7 +97,7 @@ public struct MediaCell: View {
                 Text(date, format: .dateTime)
                     .font(.caption)
                     .foregroundStyle(.white)
-                    .padding(.vertical,4)
+                    .padding(.vertical, 4)
                     .padding(.horizontal, 8)
                     .background(.black.opacity(0.2))
                     .clipShape(RoundedRectangle(cornerRadius: 4))
