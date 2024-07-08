@@ -221,6 +221,7 @@ public struct SearchFeature {
         }
     }
     
+    /// Kakao API를 이용해 이미지 데이터를 요청합니다.
     private func fetchImageContents(
         keyword: String,
         page: Int,
@@ -246,6 +247,7 @@ public struct SearchFeature {
         return try await imageCacheQuery()
     }
     
+    /// Kakao API를 이용해 동영상 데이터를 요청합니다.
     private func fetchVideoContents(
         keyword: String,
         page: Int,
@@ -271,6 +273,7 @@ public struct SearchFeature {
         return try await videoCacheQuery()
     }
     
+    /// Kakao API를 통해 받은 동영상,이미지 정보를 하나의 모델로 병합합니다.
     private func mergeMediaContents(
         images: KakaoImageResponse,
         videos: KakaoVideoResponse
@@ -285,6 +288,7 @@ public struct SearchFeature {
         return sortedModels
     }
     
+    /// 검색 결과 중 스크랩된 요소를 반환합니다.
     private func compareIsScrapped(
         searchContents: [SearchMediaContentModel]
     ) async throws -> [SearchMediaContentModel] {

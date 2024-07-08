@@ -86,6 +86,7 @@ public struct ScrapFeature {
         
     }
     
+    /// 내부 DB에서 스크랩된 컨텐츠를 불러옵니다.
     func fetchScrapContent() async throws -> [ScrapMediaContentModel] {
         async let persistenceImages = persistenceImageRepository
             .getAllScrapImage()
