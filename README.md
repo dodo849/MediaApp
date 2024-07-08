@@ -1,3 +1,16 @@
+## 시작하기
+1. xcconfig 파일 다운로드
+  - 🔗 https://drive.google.com/file/d/1E6TfKTZbc6CeZy2_5jbBgTCHABZTwMwY/view?usp=share_link
+2. 프로젝트 루트 > Xcconfigs 폴더 생성 > xcconfig 파일 넣기
+  - 전체 구조 
+  - ![image](https://github.com/dodo849/MediaApp/assets/71880682/31a8db95-497a-453c-a4e8-611f9ef85b27)
+3. make 명령어로 워크스페이스 및 프로젝트 생성
+```zsh
+$ make generate
+```
+
+<br/>
+
 ## 모듈 구조
 ![graph](https://github.com/dodo849/MediaApp/assets/71880682/46fa5645-6f67-450a-b7eb-c3c9ff873db8)
 
