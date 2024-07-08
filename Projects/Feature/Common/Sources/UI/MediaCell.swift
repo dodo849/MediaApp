@@ -40,7 +40,7 @@ public struct MediaCell: View {
                     RoundedRectangle(cornerRadius: Self.imageRadius)
                         .stroke(
                             isSelected
-                            ? Color.blue
+                            ? Color.mainColor
                             : Color.clear,
                             lineWidth: 2
                         )
@@ -65,7 +65,7 @@ public struct MediaCell: View {
                 Image(systemName: "archivebox.circle.fill")
                     .resizable()
                     .frame(width: 24, height: 24)
-                    .foregroundColor(.blue)
+                    .foregroundColor(.mainColor)
                     .background(Color.white)
                     .clipShape(Circle())
             }

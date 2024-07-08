@@ -52,7 +52,7 @@ public class CacheQuery<Key: CacheQueryKey> {
     
     // MARK: Logger
     private let logger: Logger = Logger(
-        subsystem: "",
+        subsystem: Bundle.module.bundleIdentifier!,
         category: "CacheQuery"
     )
     

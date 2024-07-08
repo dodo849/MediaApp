@@ -66,6 +66,7 @@ extension Project {
                     name: "\(name)Core",
                     product: .framework,
                     bundleId: "\(bundleId).\(name).core",
+                    hasResource: true,
                     dependencies: dependencies
                 ),
             ]

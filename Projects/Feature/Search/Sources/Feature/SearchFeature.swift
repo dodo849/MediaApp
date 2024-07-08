@@ -59,7 +59,7 @@ public struct SearchFeature {
     }
     
     public enum InnerAction: Equatable {
-        case searchMedia
+        case searchMedia(String)
         case imagePageIsLast
         case videoPageIsLast
         case addMedia([SearchMediaContentModel])
@@ -67,7 +67,7 @@ public struct SearchFeature {
     }
     
     public enum AsyncAction: Equatable {
-        case fetchMedia
+        case fetchMedia(String)
     }
     
     public enum ScopeAction: Equatable { }
@@ -96,16 +96,17 @@ public struct SearchFeature {
                 case .searchKeywordChanged(let text):
                     state.searchKeyword = text
                     
-                    if state.searchKeyword.isEmpty {
+                    if text.isEmpty {
+                        state.media.removeAll()
                         return .none
+                    } else {
+                        return .send(.inner(.searchMedia(text)))
+                            .debounce(
+                                id: DebounceID(),
+                                for: 0.3,
+                                scheduler: DispatchQueue.main
+                            )
                     }
-                    
-                    return .send(.inner(.searchMedia))
-                        .debounce(
-                            id: DebounceID(),
-                            for: 0.3,
-                            scheduler: DispatchQueue.main
-                        )
                     
                 case .selectContent(let content):
                     state.selectedContent.append(content)
@@ -135,16 +136,17 @@ public struct SearchFeature {
                     return .none
                     
                 case .loadMoreMedia:
-                    return .send(.async(.fetchMedia))
+                    let keyword = state.searchKeyword
+                    return .send(.async(.fetchMedia(keyword)))
                 }
                 
             case .inner(let innerAction):
                 switch innerAction {
-                case .searchMedia:
+                case .searchMedia(let keyword):
                     state.media.removeAll()
                     state.imagePaging = .init()
                     state.videoPaging = .init()
-                    return .send(.async(.fetchMedia))
+                    return .send(.async(.fetchMedia(keyword)))
                     
                 case .imagePageIsLast:
                     state.imagePaging.isLastPage = true
@@ -165,7 +167,7 @@ public struct SearchFeature {
                 
             case .async(let asyncAction):
                 switch asyncAction {
-                case .fetchMedia:
+                case .fetchMedia(let keyword):
                     state.imagePaging.page += 1
                     state.videoPaging.page += 1
                     
@@ -174,7 +176,7 @@ public struct SearchFeature {
                     let isLastImagePage = state.imagePaging.isLastPage
                     let isLastVideoPage = state.videoPaging.isLastPage
                     
-                    let searchKeyword = state.searchKeyword
+                    let searchKeyword = keyword
                     return .run { send in
                         do {
                             /// 이미지 및 동영상 요청

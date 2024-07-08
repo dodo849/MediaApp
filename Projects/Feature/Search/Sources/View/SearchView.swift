@@ -8,6 +8,7 @@
 import SwiftUI
 
 import CommonFeature
+import CommonNetwork
 
 import ComposableArchitecture
 import Kingfisher
@@ -19,6 +20,7 @@ public struct SearchView: View {
     @FocusState private var textFieldFocus: Bool
     
     @Perception.Bindable private var store: Store<ViewState, ViewAction>
+    @StateObject private var networkMonitor = NetworkMonitor()
     
     public init(store: StoreOf<SearchFeature>) {
         self.store = store.scope(
@@ -36,6 +38,20 @@ public struct SearchView: View {
                             .sending(\.searchKeywordChanged)
                     )
                     .focused($textFieldFocus)
+                    
+                    if store.media.isEmpty {
+                        VStack(spacing: 20) {
+                            Image(systemName: "list.bullet.indent")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50)
+                            Text("검색 결과가 없습니다")
+                                .font(.body)
+                        }
+                        .foregroundStyle(.gray)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                        .padding(.top, Self.screenHeight / 4)
+                    }
                     
                     LazyVGrid(
                         columns: [
@@ -86,6 +102,7 @@ public struct SearchView: View {
 extension SearchView {
     static let gridSpacing: CGFloat = 8
     static let imageRadius: CGFloat = 4
+    static let screenHeight: CGFloat = UIScreen.main.bounds.height
 }
 
 // MARK: - Preview
