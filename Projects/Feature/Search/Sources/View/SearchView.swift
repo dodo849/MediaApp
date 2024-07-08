@@ -39,54 +39,10 @@ public struct SearchView: View {
                     )
                     .focused($textFieldFocus)
                     
-                    if store.media.isEmpty {
-                        VStack(spacing: 20) {
-                            Image(systemName: "list.bullet.indent")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 50)
-                            Text("검색 결과가 없습니다")
-                                .font(.body)
-                        }
-                        .foregroundStyle(.gray)
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.top, Self.screenHeight / 4)
-                    }
-                    
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: Self.gridSpacing),
-                            GridItem(.flexible(), spacing: Self.gridSpacing)
-                        ],
-                        spacing: Self.gridSpacing
-                    ) {
-                        ForEach(store.media) { content in
-                            let playTime: TimeInterval? = {
-                                if case let .video(time) = content.contentType {
-                                    return time
-                                } else {
-                                    return nil
-                                }
-                            }()
-                            
-                            MediaCell(
-                                imageURL: content.thumbnailURL,
-                                isSelected: store.selectedContent.contains(content),
-                                playTime: playTime,
-                                date: content.datetime
-                            ).onTapGesture {
-                                if store.selectedContent.contains(content) {
-                                    store.send(.deselectContent(content))
-                                } else {
-                                    store.send(.selectContent(content))
-                                }
-                            }
-                            .onAppear {
-                                if content == store.media.last {
-                                    store.send(.loadMoreMedia)
-                                }
-                            }
-                        }
+                    if !networkMonitor.isConnected {
+                        networkIsNotConnectView
+                    } else {
+                        content
                     }
                 }
                 .padding(Self.gridSpacing)
@@ -95,6 +51,77 @@ public struct SearchView: View {
                 }
             }
         }
+    }
+    
+    @ViewBuilder
+    var content: some View {
+        if store.media.isEmpty {
+            emptySearchResultView
+        }
+        
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(), spacing: Self.gridSpacing),
+                GridItem(.flexible(), spacing: Self.gridSpacing)
+            ],
+            spacing: Self.gridSpacing
+        ) {
+            ForEach(store.media) { content in
+                let playTime: TimeInterval? = {
+                    if case let .video(time) = content.contentType {
+                        return time
+                    } else {
+                        return nil
+                    }
+                }()
+                
+                MediaCell(
+                    imageURL: content.thumbnailURL,
+                    isSelected: store.selectedContent.contains(content),
+                    playTime: playTime,
+                    date: content.datetime
+                ).onTapGesture {
+                    if store.selectedContent.contains(content) {
+                        store.send(.deselectContent(content))
+                    } else {
+                        store.send(.selectContent(content))
+                    }
+                }
+                .onAppear {
+                    if content == store.media.last {
+                        store.send(.loadMoreMedia)
+                    }
+                }
+            }
+        }
+    }
+    
+    var emptySearchResultView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "list.bullet.indent")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50)
+            Text("검색 결과가 없습니다")
+                .font(.body)
+        }
+        .foregroundStyle(.gray)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, Self.screenHeight / 4)
+    }
+    
+    var networkIsNotConnectView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "wifi.exclamationmark")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50)
+            Text("네트워크 연결을 확인해주세요")
+                .font(.body)
+        }
+        .foregroundStyle(.gray)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, Self.screenHeight / 4)
     }
 }
 
