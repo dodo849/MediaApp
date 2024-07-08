@@ -55,7 +55,7 @@ $ make generate
 <br/>
 
 ## 유즈케이스
-### SearchView
+### ScrapView
 시나리오 | 스크랩된 미디어가 없음 | 스크랩된 미디어가 있음 | 로딩 플레이스홀더 |
 |--|--|--|--|
 | 화면 |![simulator_screenshot_905CD9B1-7B81-48D6-996D-EB51B865754E](https://github.com/dodo849/MediaApp/assets/71880682/18773d35-9f4f-4c09-973e-5a92899b4914) | ![simulator_screenshot_AFDA065F-67F5-4067-A10E-878BBB45A7BC](https://github.com/dodo849/MediaApp/assets/71880682/225f054b-8dea-40a7-bbc1-01a8e1a91a90) | ![Simulator Screen Recording - iPhone 15 - 2024-07-08 at 17 42 09](https://github.com/dodo849/MediaApp/assets/71880682/6a772f8c-9a54-41b2-9b15-773cec82a575)
@@ -71,9 +71,6 @@ $ make generate
 
 
 https://github.com/dodo849/MediaApp/assets/71880682/011307be-e832-43b4-80ce-56ff6b5e4be4
-
-
-
 
 <br/>
 
@@ -145,6 +142,7 @@ private func cleanUpExpiredCache() {
     }
 }
 ```
+<br/>
 
 ## TCA
 
