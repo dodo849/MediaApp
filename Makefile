@@ -7,7 +7,7 @@ generate:
 	TUIST_ROOT_DIR=${PWD} $(TUIST) generate
 
 lint:
-	$(SWIFTLINT)
+	$(SWIFTLINT) --fix
 
 clean:
 	rm -rf DerivedData

@@ -109,7 +109,6 @@ public struct ScrapView: View {
         )
     }
     
-    
     var emptyScrapView: some View {
         VStack(spacing: Self.emtpyViewSpacing) {
             Image(systemName: "xmark.bin")

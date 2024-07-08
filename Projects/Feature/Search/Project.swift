@@ -9,6 +9,6 @@ let project = Project.makeFeatureModule(
         .network(.common),
         .network(.media),
         .database(.media),
-        .thirdParty(.kingfisher),
+        .thirdParty(.kingfisher)
     ]
 )

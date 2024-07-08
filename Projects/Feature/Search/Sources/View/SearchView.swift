@@ -149,7 +149,7 @@ private extension SearchView {
 }
 
 // MARK: - Preview
-//#Preview {
+// #Preview {
 //    SearchView(
 //        store: Store(
 //            initialState:
@@ -158,4 +158,4 @@ private extension SearchView {
 //            SearchFeature()
 //        }
 //    )
-//}
+// }
