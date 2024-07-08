@@ -8,6 +8,7 @@
 import Foundation
 import OSLog
 
+import CommonFeature
 import SearchFeature
 import MediaDatabase
 
@@ -32,12 +33,28 @@ public struct ScrapFeature {
     }
     
     // MARK: Action
-    public enum Action {
+    public enum Action: FeatureAction {
+        case view(ViewAction)
+        case inner(InnerAction)
+        case async(AsyncAction)
+        case scope(ScopeAction)
+        case delegate(DelegateAction)
+    }
+    
+    @CasePathable
+    public enum ViewAction {
         case onAppear
         case presentSearchView
         case destination(PresentationAction<Destination.Action>)
+    }
+    
+    public enum InnerAction: Equatable {
         case addMedia([ScrapMediaContentModel])
     }
+    
+    public enum AsyncAction: Equatable {}
+    public enum ScopeAction: Equatable { }
+    public enum DelegateAction: Equatable { }
     
     // MARK: Dependency
     let logger = Logger(
@@ -54,36 +71,40 @@ public struct ScrapFeature {
     public var body: some Reducer<State, Action> {
         Reduce { state, action in
             switch action {
-            case .onAppear:
-                return .run { send in
-                    do {
-                        let mediaContentModels = try await fetchScrapContent()
-                        await send(.addMedia(mediaContentModels))
-                    } catch {
-                        self.logger.error("Failed to fetch image info: \(error.localizedDescription)")
+            case .view(let viewAction):
+                switch viewAction {
+                case .onAppear:
+                    return .run { send in
+                        do {
+                            let mediaContentModels = try await fetchScrapContent()
+                            await send(.inner(.addMedia(mediaContentModels)))
+                        } catch {
+                            self.logger.error("Failed to fetch image info: \(error.localizedDescription)")
+                        }
                     }
+                    
+                case .presentSearchView:
+                    state.destination = .search(SearchFeature.State())
+                    return .none
+                    
+                case .destination(.dismiss):
+                    KingfisherManager.shared.cache.clearCache()
+                    state.destination = nil
+                    return .none
+                    
+                case .destination(.presented):
+                    return .none
                 }
                 
-            case .presentSearchView:
-                state.destination = .search(SearchFeature.State())
-                return .none
-                
-            case .destination(.dismiss):
-                KingfisherManager.shared.cache.clearCache()
-                state.destination = nil
-                return .none
-                
-            case .destination(.presented):
-                return .none
-                
-            case .addMedia(let media):
-                state.media.removeAll()
-                state.media.append(contentsOf: media)
-                return .none
+            case .inner(let innerAction):
+                switch innerAction {
+                case .addMedia(let media):
+                    state.media.removeAll()
+                    state.media.append(contentsOf: media)
+                    return .none
+                }
             }
         }
-        .ifLet(\.$destination, action: \.destination)
-        
     }
     
     /// 내부 DB에서 스크랩된 컨텐츠를 불러옵니다.
