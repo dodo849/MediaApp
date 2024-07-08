@@ -39,6 +39,13 @@
   - **세부모듈**
     - `Cache`: 서버 데이터 캐싱
 
+## 유즈케이스
+### SearchView
+| 검색어가 비었거나 결과가 없을 시 화면 | 검색시 화면 | 사진 스크랩 시 화면 | 네트워크 연결 없을 시 화면 |
+|--|--|--|--|
+| ![simulator_screenshot_722DA42F-4DA5-4B62-A557-D20A26F4E86A](https://github.com/dodo849/MediaApp/assets/71880682/d77b21a4-9472-49d7-9789-ea0cb2fcb736) | ![simulator_screenshot_E5E8D9A0-2CE9-425D-AF3C-5F54EED410ED](https://github.com/dodo849/MediaApp/assets/71880682/11042ab9-f4f7-4ae4-8b5d-933e72189b27) | ![simulator_screenshot_4552009E-0290-40FB-AD2A-A21B0D4F4F93](https://github.com/dodo849/MediaApp/assets/71880682/5f9930e1-0447-4b20-ac87-feca5773333a) | ![simulator_screenshot_036019A5-BA7B-4449-8A40-649DFF668C72](https://github.com/dodo849/MediaApp/assets/71880682/91116b3b-a89b-40f3-bc80-50c2778119e9) | 
+
+
 ## 라이브러리
 라이브러리명 | 용도 | 버전 | Git
 |--|--|--|--|
