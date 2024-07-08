@@ -26,6 +26,6 @@ public protocol CacheQueryKey {
 public extension CacheQueryKey {
     var key: String {
         return "\(type(of: self))_\(self)"
-            .replacingOccurrences(of: " ", with: "_")
+            .replacingOccurrences(of: " ", with: "")
     }
 }

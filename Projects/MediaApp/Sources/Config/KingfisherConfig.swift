@@ -13,10 +13,11 @@ struct KingfisherConfig {
     static func setup() {
         // 캐시 설정
         let cache = ImageCache.default
+        
         // 메모리 캐시 만료 시간 설정
         cache.memoryStorage.config.expiration = .seconds(60 * 5) // 5분
         
-        // 메모리 캐시 전체 용량 제한 100 MB.
+        // 메모리 캐시 전체 용량 제한 100MB.
         cache.memoryStorage.config.totalCostLimit = 100 * 1024 * 1024 // 100MB
         
         // 메모리 캐시 이미지 개수 제한

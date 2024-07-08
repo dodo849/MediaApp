@@ -56,6 +56,9 @@ public class CacheQuery<Key: CacheQueryKey> {
         category: "CacheQuery"
     )
     
+    // MARK: Instacne
+    public let `default` = CacheQuery<DefaultCacheQueryKey>()
+    
     // MARK: Initializer
     public init(options: [CacheQueryConfig] = []) {
         config(options: options)
