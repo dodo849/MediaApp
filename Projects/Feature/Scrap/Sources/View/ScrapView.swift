@@ -99,7 +99,7 @@ public struct ScrapView: View {
             Image(systemName: "xmark.bin")
                 .resizable()
                 .scaledToFit()
-                .frame(width: emtpyImageWidth)
+                .frame(width: Self.emtpyImageWidth)
             Text("스크랩된 미디어가 없습니다")
                 .font(.body)
         }
