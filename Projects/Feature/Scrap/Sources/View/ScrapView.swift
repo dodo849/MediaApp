@@ -71,31 +71,44 @@ public struct ScrapView: View {
         }
     }
     
+    @ViewBuilder
     var mediaList: some View {
-        LazyVGrid(
-            columns: [
-                GridItem(.flexible(), spacing: Self.gridSpacing),
-                GridItem(.flexible(), spacing: Self.gridSpacing)
-            ],
-            spacing: Self.gridSpacing
-        ) {
-            ForEach(store.media) { content in
-                let playTime: TimeInterval? = {
-                    if case let .video(time) = content.contentType {
-                        return time
-                    } else {
-                        return nil
-                    }
-                }()
-                
-                MediaCell(
-                    imageURL: content.thumbnailURL,
-                    playTime: playTime,
-                    date: content.datetime
-                )
+        HStack(alignment: .top) {
+            LazyVGrid(columns: [.init(.flexible())]) {
+                ForEach(Array(store.media.enumerated()
+                    .filter { $0.offset.isMultiple(of: 2) }.map { $1 })
+                ) { content in
+                    mediaCell(content)
+                }
+            }
+            
+            LazyVGrid(columns: [.init(.flexible())]) {
+                ForEach(Array(store.media.enumerated()
+                    .filter { !$0.offset.isMultiple(of: 2) }.map { $1 })
+                ) { content in
+                    mediaCell(content)
+                }
             }
         }
     }
+    
+    private func mediaCell(_ content: ScrapMediaContentModel) -> some View {
+        let playTime: TimeInterval? = {
+            if case let .video(time) = content.contentType {
+                return time
+            } else {
+                return nil
+            }
+        }()
+        
+        return MediaCell(
+            imageURL: content.thumbnailURL,
+            isSelected: false,
+            playTime: playTime,
+            date: content.datetime
+        )
+    }
+    
     
     var emptyScrapView: some View {
         VStack(spacing: Self.emtpyViewSpacing) {
