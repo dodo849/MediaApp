@@ -40,28 +40,10 @@ public struct ScrapView: View {
                             .font(.system(size: 24, weight: .bold))
                     }
                     
-                    LazyVGrid(
-                        columns: [
-                            GridItem(.flexible(), spacing: Self.gridSpacing),
-                            GridItem(.flexible(), spacing: Self.gridSpacing)
-                        ],
-                        spacing: Self.gridSpacing
-                    ) {
-                        ForEach(store.media) { content in
-                            let playTime: TimeInterval? = {
-                                if case let .video(time) = content.contentType {
-                                    return time
-                                } else {
-                                    return nil
-                                }
-                            }()
-                            
-                            MediaCell(
-                                imageURL: content.thumbnailURL,
-                                playTime: playTime,
-                                date: content.datetime
-                            )
-                        }
+                    if store.media.isEmpty {
+                        emptyScrapView
+                    } else {
+                        mediaList
                     }
                     
                     NavigationLink(
@@ -85,6 +67,46 @@ public struct ScrapView: View {
             }
         }
     }
+    
+    var mediaList: some View {
+        LazyVGrid(
+            columns: [
+                GridItem(.flexible(), spacing: Self.gridSpacing),
+                GridItem(.flexible(), spacing: Self.gridSpacing)
+            ],
+            spacing: Self.gridSpacing
+        ) {
+            ForEach(store.media) { content in
+                let playTime: TimeInterval? = {
+                    if case let .video(time) = content.contentType {
+                        return time
+                    } else {
+                        return nil
+                    }
+                }()
+                
+                MediaCell(
+                    imageURL: content.thumbnailURL,
+                    playTime: playTime,
+                    date: content.datetime
+                )
+            }
+        }
+    }
+    
+    var emptyScrapView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "xmark.bin")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 50)
+            Text("스크랩된 미디어가 없습니다")
+                .font(.body)
+        }
+        .foregroundStyle(.gray)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .padding(.top, Self.screenHeight / 3)
+    }
 }
 
 // MARK: - View Contant
@@ -92,6 +114,7 @@ extension ScrapView {
     static let pageSpacing: CGFloat = 16
     static let gridSpacing: CGFloat = 8
     static let imageRadius: CGFloat = 4
+    static let screenHeight: CGFloat = UIScreen.main.bounds.height
 }
 
 // MARK: - Preview

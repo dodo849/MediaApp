@@ -42,7 +42,7 @@ public struct SearchView: View {
                     if !networkMonitor.isConnected {
                         networkIsNotConnectView
                     } else {
-                        content
+                        mediaList
                     }
                 }
                 .padding(Self.gridSpacing)
@@ -54,7 +54,7 @@ public struct SearchView: View {
     }
     
     @ViewBuilder
-    var content: some View {
+    var mediaList: some View {
         if store.media.isEmpty {
             emptySearchResultView
         }
