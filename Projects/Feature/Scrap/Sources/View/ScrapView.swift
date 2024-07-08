@@ -109,7 +109,7 @@ public struct ScrapView: View {
     }
 }
 
-// MARK: - View Contant
+// MARK: - View Constant
 extension ScrapView {
     static let pageSpacing: CGFloat = 16
     static let gridSpacing: CGFloat = 8

@@ -125,7 +125,7 @@ public struct SearchView: View {
     }
 }
 
-// MARK: - View Contant
+// MARK: - View Constant
 extension SearchView {
     static let gridSpacing: CGFloat = 8
     static let imageRadius: CGFloat = 4
