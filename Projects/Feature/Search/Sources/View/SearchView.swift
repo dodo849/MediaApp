@@ -97,11 +97,11 @@ public struct SearchView: View {
     }
     
     var emptySearchResultView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Self.emtpyViewSpacing) {
             Image(systemName: "list.bullet.indent")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 50)
+                .frame(width: Self.emtpyImageWidth)
             Text("검색 결과가 없습니다")
                 .font(.body)
         }
@@ -111,11 +111,11 @@ public struct SearchView: View {
     }
     
     var networkIsNotConnectView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Self.emtpyViewSpacing) {
             Image(systemName: "wifi.exclamationmark")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 50)
+                .frame(width: Self.emtpyImageWidth)
             Text("네트워크 연결을 확인해주세요")
                 .font(.body)
         }
@@ -128,7 +128,8 @@ public struct SearchView: View {
 // MARK: - View Constant
 extension SearchView {
     static let gridSpacing: CGFloat = 8
-    static let imageRadius: CGFloat = 4
+    static let emtpyViewSpacing: CGFloat = 20
+    static let emtpyImageWidth: CGFloat = 50
     static let screenHeight: CGFloat = UIScreen.main.bounds.height
 }
 

@@ -95,11 +95,11 @@ public struct ScrapView: View {
     }
     
     var emptyScrapView: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: Self.emtpyViewSpacing) {
             Image(systemName: "xmark.bin")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 50)
+                .frame(width: emtpyImageWidth)
             Text("스크랩된 미디어가 없습니다")
                 .font(.body)
         }
@@ -113,7 +113,8 @@ public struct ScrapView: View {
 extension ScrapView {
     static let pageSpacing: CGFloat = 16
     static let gridSpacing: CGFloat = 8
-    static let imageRadius: CGFloat = 4
+    static let emtpyViewSpacing: CGFloat = 20
+    static let emtpyImageWidth: CGFloat = 50
     static let screenHeight: CGFloat = UIScreen.main.bounds.height
 }
 
