@@ -39,13 +39,13 @@ public struct ScrapFeature {
         case async(AsyncAction)
         case scope(ScopeAction)
         case delegate(DelegateAction)
+        case destination(PresentationAction<Destination.Action>)
     }
     
     @CasePathable
     public enum ViewAction {
         case onAppear
         case presentSearchView
-        case destination(PresentationAction<Destination.Action>)
     }
     
     public enum InnerAction: Equatable {
@@ -79,20 +79,13 @@ public struct ScrapFeature {
                             let mediaContentModels = try await fetchScrapContent()
                             await send(.inner(.addMedia(mediaContentModels)))
                         } catch {
-                            self.logger.error("Failed to fetch image info: \(error.localizedDescription)")
+                            self.logger
+                                .error("Failed to fetch image info: \(error.localizedDescription)")
                         }
                     }
                     
                 case .presentSearchView:
-                    state.destination = .search(SearchFeature.State())
-                    return .none
-                    
-                case .destination(.dismiss):
-                    KingfisherManager.shared.cache.clearCache()
-                    state.destination = nil
-                    return .none
-                    
-                case .destination(.presented):
+                    state.destination = .search(.init())
                     return .none
                 }
                 
@@ -103,8 +96,17 @@ public struct ScrapFeature {
                     state.media.append(contentsOf: media)
                     return .none
                 }
+                
+            case .destination(.dismiss):
+                KingfisherManager.shared.cache.clearCache()
+                state.destination = nil
+                return .none
+                
+            case .destination(.presented):
+                return .none
             }
         }
+        .ifLet(\.$destination, action: \.destination)
     }
     
     /// 내부 DB에서 스크랩된 컨텐츠를 불러옵니다.

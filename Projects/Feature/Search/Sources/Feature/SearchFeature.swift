@@ -95,7 +95,7 @@ public struct SearchFeature {
                 switch viewAction {
                 case .searchKeywordChanged(let text):
                     state.searchKeyword = text
-                    
+
                     if text.isEmpty {
                         state.media.removeAll()
                         return .none

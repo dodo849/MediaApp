@@ -29,6 +29,11 @@ public struct SearchView: View {
         )
     }
     
+    func adress(_ object: UnsafeRawPointer) -> String {
+        let address = Int(bitPattern: object)
+        return NSString(format: "%p", address) as String
+    }
+    
     public var body: some View {
         WithPerceptionTracking {
             ScrollView {
@@ -126,7 +131,7 @@ public struct SearchView: View {
 }
 
 // MARK: - View Constant
-extension SearchView {
+private extension SearchView {
     static let gridSpacing: CGFloat = 8
     static let emtpyViewSpacing: CGFloat = 20
     static let emtpyImageWidth: CGFloat = 50
@@ -134,13 +139,13 @@ extension SearchView {
 }
 
 // MARK: - Preview
-#Preview {
-    SearchView(
-        store: Store(
-            initialState:
-                SearchFeature.State()
-        ) {
-            SearchFeature()
-        }
-    )
-}
+//#Preview {
+//    SearchView(
+//        store: Store(
+//            initialState:
+//                SearchFeature.State()
+//        ) {
+//            SearchFeature()
+//        }
+//    )
+//}

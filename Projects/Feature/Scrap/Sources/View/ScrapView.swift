@@ -18,13 +18,14 @@ public struct ScrapView: View {
     public typealias ViewAction = ScrapFeature.ViewAction
     public typealias ViewState = ScrapFeature.State
     
-    @Perception.Bindable private var store: Store<ViewState, ViewAction>
+    @Perception.Bindable private var store: StoreOf<ScrapFeature>
     
     public init(store: StoreOf<ScrapFeature>) {
-        self.store = store.scope(
-            state: \.self,
-            action: \.view
-        )
+//        self.store = store.scope(
+//            state: \.self,
+//            action: \.view
+//        )
+        self.store = store
     }
     
     public var body: some View {
@@ -33,7 +34,7 @@ public struct ScrapView: View {
                 VStack(alignment: .leading, spacing: 16) {
                     SearchBar(text: .constant(""), isDummy: true)
                         .onTapGesture {
-                            store.send(.presentSearchView)
+                            store.send(.view(.presentSearchView))
                         }
                     
                     HStack {
@@ -49,25 +50,22 @@ public struct ScrapView: View {
                     } else {
                         mediaList
                     }
-                    
-                    NavigationLink(
-                        item: $store.scope(
-                            state: \.destination?.search,
-                            action: \.destination.search
-                        ),
-                        onNavigate: { _ in },
-                        destination: { destinationStore in
-                            SearchView(
-                                store: destinationStore
-                            )
-                        },
-                        label: { }
-                    )
                 }
                 .padding(Self.pageSpacing)
             }
             .onAppear {
-                store.send(.onAppear)
+                store.send(.view(.onAppear))
+            }
+            .background {
+                NavigationLinkStore(
+                    store.scope(
+                        state: \.$destination.search,
+                        action: \.destination.search
+                    ),
+                    onTap: { },
+                    destination: { SearchView(store: $0) },
+                    label: { EmptyView() }
+                )
             }
         }
     }
@@ -114,7 +112,7 @@ public struct ScrapView: View {
 }
 
 // MARK: - View Constant
-extension ScrapView {
+private extension ScrapView {
     static let pageSpacing: CGFloat = 16
     static let gridSpacing: CGFloat = 8
     static let emtpyViewSpacing: CGFloat = 20
