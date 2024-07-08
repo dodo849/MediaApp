@@ -15,12 +15,16 @@ import ComposableArchitecture
 import Kingfisher
 
 public struct ScrapView: View {
-    @Perception.Bindable var store: StoreOf<ScrapFeature>
+    public typealias ViewAction = ScrapFeature.ViewAction
+    public typealias ViewState = ScrapFeature.State
     
-    var mediaRepository = KakaoImageRepository()
+    @Perception.Bindable private var store: Store<ViewState, ViewAction>
     
     public init(store: StoreOf<ScrapFeature>) {
-        self.store = store
+        self.store = store.scope(
+            state: \.self,
+            action: \.view
+        )
     }
     
     public var body: some View {
@@ -99,7 +103,7 @@ public struct ScrapView: View {
             Image(systemName: "xmark.bin")
                 .resizable()
                 .scaledToFit()
-                .frame(width: emtpyImageWidth)
+                .frame(width: Self.emtpyImageWidth)
             Text("스크랩된 미디어가 없습니다")
                 .font(.body)
         }
