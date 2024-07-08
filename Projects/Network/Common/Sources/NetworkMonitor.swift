@@ -25,7 +25,8 @@ public class NetworkMonitor: ObservableObject {
     }
 }
 
-struct ContentView: View {
+// MARK: - Preview
+struct NetworkMonitorView: View {
     @StateObject private var networkMonitor = NetworkMonitor()
     
     var body: some View {
@@ -42,4 +43,8 @@ struct ContentView: View {
             networkMonitor.isConnected = networkMonitor.monitor.currentPath.status == .satisfied
         }
     }
+}
+
+#Preview {
+    NetworkMonitorView()
 }

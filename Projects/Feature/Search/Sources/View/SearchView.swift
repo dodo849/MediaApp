@@ -107,7 +107,7 @@ public struct SearchView: View {
         }
         .foregroundStyle(.gray)
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, Self.screenHeight / 4)
+        .padding(.top, Self.screenHeight / 3)
     }
     
     var networkIsNotConnectView: some View {
@@ -121,7 +121,7 @@ public struct SearchView: View {
         }
         .foregroundStyle(.gray)
         .frame(maxWidth: .infinity, alignment: .center)
-        .padding(.top, Self.screenHeight / 4)
+        .padding(.top, Self.screenHeight / 3)
     }
 }
 
