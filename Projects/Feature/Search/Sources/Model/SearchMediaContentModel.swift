@@ -15,13 +15,13 @@ public struct SearchMediaContentModel: Equatable, Identifiable {
     public var datetime: Date
     
     public init(
-        id: String? = nil,
+        id: String,
         contentType: MediaType,
         thumbnailURL: String,
         contentURL: String,
         datetime: Date
     ) {
-        self.id = id ?? contentURL
+        self.id = id
         self.contentType = contentType
         self.thumbnailURL = thumbnailURL
         self.contentURL = contentURL

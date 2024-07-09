@@ -18,6 +18,7 @@ struct ModelConverter {
     ) -> [SearchMediaContentModel] {
         return kakaoImageResponse.documents.map {
             .init(
+                id: $0.image_url,
                 contentType: .image,
                 thumbnailURL: $0.thumbnail_url,
                 contentURL: $0.image_url,
@@ -31,6 +32,7 @@ struct ModelConverter {
     ) -> [SearchMediaContentModel] {
         return kakaoVideoResponse.documents.map {
             .init(
+                id: $0.url,
                 contentType: .video(playTime: TimeInterval($0.play_time)),
                 thumbnailURL: $0.thumbnail,
                 contentURL: $0.url,
