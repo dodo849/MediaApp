@@ -31,7 +31,7 @@ public struct SearchFeature {
         /// 동영상 검색 페이지 정보
         var videoPaging: Paging = Paging()
         
-        struct Paging: Equatable {
+        struct Paging: Equatable { // TODO: Paging 로직을 어디에 둘지 고민
             /// 현재 키워드로 조회한 마지막 페이지
             var page: Int = 1
             /// 마지막 페이지 여부
