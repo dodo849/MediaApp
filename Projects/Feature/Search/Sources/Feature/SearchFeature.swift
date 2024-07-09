@@ -68,7 +68,7 @@ public struct SearchFeature {
     
     @CasePathable
     public enum AsyncAction {
-        case mediaResponse(Result<SearchMediaContentModel, Error>)
+        case mediaResponse(Result<[SearchMediaContentModel], Error>)
     }
     
     public enum ScopeAction: Equatable { }
@@ -96,9 +96,12 @@ public struct SearchFeature {
                 switch viewAction {
                 case .searchKeywordChanged(let text):
                     state.searchKeyword = text
-
+                    
+                    state.media.removeAll()
+                    state.imagePaging = .init()
+                    state.videoPaging = .init()
+                    
                     if text.isEmpty {
-                        state.media.removeAll()
                         return .none
                     } else {
                         return .send(.inner(.searchMedia(text)))
@@ -144,22 +147,21 @@ public struct SearchFeature {
             case .inner(let innerAction):
                 switch innerAction {
                 case .searchMedia(let keyword):
-                    state.media.removeAll()
-                    state.imagePaging = .init()
-                    state.videoPaging = .init()
+                    let imagePaging = state.imagePaging
+                    let videoPaging = state.videoPaging
                     
                     return .run { send in
                         do {
                             /// 이미지 및 동영상 요청
                             async let fetchImages = fetchImageContents(
                                 keyword: keyword,
-                                page: state.imagePaging.page,
-                                isLastPage: state.imagePaging.isLastPage
+                                page: imagePaging.page,
+                                isLastPage: imagePaging.isLastPage
                             )
                             async let fetchVideos = fetchVideoContents(
                                 keyword: keyword,
-                                page: state.videoPaging.page,
-                                isLastPage: state.videoPaging.isLastPage
+                                page: videoPaging.page,
+                                isLastPage: videoPaging.isLastPage
                             )
                             
                             let (imageResult, videoResult) = try await (fetchImages, fetchVideos)
@@ -181,8 +183,8 @@ public struct SearchFeature {
                     return .none
                     
                 case .addMedia(let media):
-                    state.media.append(contentsOf: media)
-                    state.media.sorted { $0.datetime > $1.datetime }
+                    state.media.append(contentsOf: media.sorted { $0.datetime > $1.datetime })
+                    state.media = state.media.sorted { $0.datetime > $1.datetime }
                     return .none
                     
                 case .selectContents(let contents):
@@ -192,21 +194,28 @@ public struct SearchFeature {
                 
             case .async(let asyncAction):
                 switch asyncAction {
-                case let .fetchMedia(.sucess(contents)):
-                    state.imagePaging.page += 1
-                    state.videoPaging.page += 1
+                case let .mediaResponse(.success(contents)):
+                    if let firstContent = contents.first {
+                        switch firstContent.contentType {
+                        case .image:
+                            state.imagePaging.page += 1
+                        case .video:
+                            state.videoPaging.page += 1
+                        }
+                    }
                     
-                    await send(.inner(.addMedia(contents)))
-                    
-                    /// 스크랩 여부 확인
-                    let scrapedContents = try await compareIsScrapped(
-                        searchContents: contents
-                    )
-                    await send(.inner(.selectContents(scrapedContents)))
-                    
-                    return .none
-                    
-                case let .fetchMedia(.failure(error)):
+                    return .run { send in
+                        /// 스크랩 여부 확인
+                        let scrapedContents = try await compareIsScrapped(
+                            searchContents: contents
+                        )
+                        
+                        await send(.inner(.addMedia(contents)))
+                        await send(.inner(.selectContents(scrapedContents)))
+                        
+                    }
+
+                case let .mediaResponse(.failure(error)):
                     logger.error("\(error.localizedDescription)")
                     return .none
                 }
@@ -219,7 +228,7 @@ public struct SearchFeature {
         keyword: String,
         page: Int,
         isLastPage: Bool
-    ) async throws -> Result<[SearchMediaContentModel], KakaoAPIError> {
+    ) async throws -> Result<[SearchMediaContentModel], Error> {
         // CacheQuery를 이용해 서버데이터 캐싱
         let imageCacheQuery = cacheQuery.makeQuery(
             key: KakaoMediaFetchQueryKey.image(
@@ -228,7 +237,7 @@ public struct SearchFeature {
                 size: 20
             ),
             expiry: KakaoMediaFetchQueryKey.expiry
-        ) {
+        ) { () async -> Result<[SearchMediaContentModel], Error> in
             let result = await kakaoImageRepository
                 .searchImages(query: keyword, page: page)
             
@@ -236,12 +245,17 @@ public struct SearchFeature {
             case let .success(response):
                 let convertedModels = ModelConverter.convert(response)
                 return .success(convertedModels)
+                
             case let .failure(error):
                 return .failure(error)
             }
         }
         
-        return try await imageCacheQuery()
+        do {
+            return try await imageCacheQuery()
+        } catch {
+            return .failure(error)
+        }
     }
     
     /// Kakao API를 이용해 동영상 데이터를 요청합니다.
@@ -249,7 +263,7 @@ public struct SearchFeature {
         keyword: String,
         page: Int,
         isLastPage: Bool
-    ) async throws -> Result<[SearchMediaContentModel], KakaoAPIError> {
+    ) async -> Result<[SearchMediaContentModel], Error> {
         // CacheQuery를 이용해 서버데이터 캐싱
         let videoCacheQuery = cacheQuery.makeQuery(
             key: KakaoMediaFetchQueryKey.video(
@@ -258,7 +272,7 @@ public struct SearchFeature {
                 size: 20
             ),
             expiry: KakaoMediaFetchQueryKey.expiry
-        ) { () async -> Result<SearchMediaContentModel, KakaoAPIError> in
+        ) { () async -> Result<[SearchMediaContentModel], Error> in
             let result = await kakaoVideoRepository
                 .searchVideos(query: keyword, page: page)
             
@@ -266,27 +280,17 @@ public struct SearchFeature {
             case let .success(response):
                 let convertedModels = ModelConverter.convert(response)
                 return .success(convertedModels)
+                
             case let .failure(error):
                 return .failure(error)
             }
         }
         
-        return try await videoCacheQuery()
-    }
-    
-    /// Kakao API를 통해 받은 동영상,이미지 정보를 하나의 모델로 병합합니다.
-    private func mergeMediaContents(
-        images: KakaoImageResponse,
-        videos: KakaoVideoResponse
-    ) -> [SearchMediaContentModel] {
-        let imageModels = ModelConverter.convert(images)
-        let videoModels = ModelConverter.convert(videos)
-        
-        let mergedModels = imageModels + videoModels
-        let sortedModels = mergedModels
-            .sorted { $0.datetime > $1.datetime }
-        
-        return sortedModels
+        do { // Handle CacheQuery error
+            return try await videoCacheQuery()
+        } catch {
+            return .failure(error)
+        }
     }
     
     /// 검색 결과 중 스크랩된 요소를 반환합니다.
