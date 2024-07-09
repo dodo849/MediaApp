@@ -15,30 +15,30 @@ import OSLog
  캐시 정보를 식별하기 위한 캐시 키를 정의합니다.
  ```swift
  enum FetchQueryKey: CacheQueryKey {
-     case image(keyword: String)
-     case video(keyword: String)
+ case image(keyword: String)
+ case video(keyword: String)
  }
  ```
  
  캐시 정보를 저장할 CacheQuery 객체를 생성합니다.
  ```swift
-let cacheQuery = CacheQuery<FetchQueryKey>()
+ let cacheQuery = CacheQuery<FetchQueryKey>()
  ```
  
  실제 데이터 요청 대신, CacheQuery 객체의 캐시 데이터를 이용하기 위해 ``makeQuery(key:expiry:query:)`` 메서드를 사용합니다.
  ```swift
  let fetchQuery = cacheQuery.makeQuery(
-    key: .image(keyword: "apple")
+ key: .image(keyword: "apple")
  ) {
-    // URLSession.shared.dataTask ...
+ // URLSession.shared.dataTask ...
  }
  ```
-
+ 
  생성된 query 클로저를 이용해 실제 데이터 요청을 수행합니다.
  ```swift
  let fetchedData = try await fetchQuery()
  ```
-*/
+ */
 public class CacheQuery<Key: CacheQueryKey> {
     // MARK: Properties
     /// 캐시데이터
@@ -78,11 +78,11 @@ public class CacheQuery<Key: CacheQueryKey> {
     ///   - expiry: 캐시가 유효한 시간 간격(단위: 초). 기본값은 5분.
     ///   - query: 캐시가 만료되었거나 없는 경우 실행할 비동기 쿼리
     /// - Returns: 캐시 기능을 갖춘 비동기 요청을 실행할 수 있는 클로저
-    public func makeQuery<Value: Codable>(
+    public func makeQuery<V: Codable, E: Error>(
         key: Key,
         expiry: TimeInterval = 60 * 5, // expiry in seconds
-        query: @escaping () async throws -> Value
-    ) -> () async throws -> Value {
+        query: @escaping () async -> Result<V, E>
+    ) -> () async throws -> Result<V, E> {
         return { [weak self] in
             guard let self = self
             else { throw CacheQueryError.instanceAccessError }
@@ -95,9 +95,9 @@ public class CacheQuery<Key: CacheQueryKey> {
                 self.logger.info("Use the cached data. key: \(uniqueKey)")
                 let decoder = JSONDecoder()
                 do {
-                    let cachedEntry = try decoder.decode(CacheEntry<Value>.self, from: cachedData as Data)
+                    let cachedEntry = try decoder.decode(CacheEntry<V>.self, from: cachedData as Data)
                     if cachedEntry.expiryDate > Date() {
-                        return cachedEntry.value
+                        return .success(cachedEntry.value)
                     } else {
                         // 만료된 항목 제거
                         self.cache.removeObject(forKey: nsKey)
@@ -113,15 +113,26 @@ public class CacheQuery<Key: CacheQueryKey> {
             
             // 쿼리를 실행하고 결과를 캐시
             self.logger.info("Use the query method to fetch new data. key: \(uniqueKey)")
-            let result = try await query()
-            let expiryDate = Date().addingTimeInterval(TimeInterval(expiry))
-            let cacheEntry = CacheEntry(value: result, expiryDate: expiryDate)
+            let result = await query()
             
-            let encoder = JSONEncoder()
-            let encodedData = try encoder.encode(cacheEntry)
-            self.cache.setObject(encodedData as NSData, forKey: nsKey)
-            self.expiryDates[nsKey] = expiryDate // FIXME: 가끔 접근 에러남
-            return result
+            switch result {
+            case let .success(value):
+                do {
+                    let expiryDate = Date().addingTimeInterval(TimeInterval(expiry))
+                    let cacheEntry = CacheEntry(value: value, expiryDate: expiryDate)
+                    let encoder = JSONEncoder()
+                    let encodedData = try encoder.encode(cacheEntry)
+                    self.cache.setObject(encodedData as NSData, forKey: nsKey)
+                    self.expiryDates[nsKey] = expiryDate
+                } catch {
+                    throw error
+                }
+                
+                return .success(value)
+                
+            case let .failure(error):
+                return .failure(error)
+            }
         }
     }
     

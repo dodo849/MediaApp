@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SearchMediaContentModel: Equatable, Identifiable {
+public struct SearchMediaContentModel: Codable, Equatable, Identifiable {
     public let id: String
     public let contentType: MediaType
     public let thumbnailURL: String
@@ -28,7 +28,7 @@ public struct SearchMediaContentModel: Equatable, Identifiable {
         self.datetime = datetime
     }
     
-    public enum MediaType: Equatable {
+    public enum MediaType: Codable, Equatable {
         case image, video(playTime: TimeInterval)
     }
 }

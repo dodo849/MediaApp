@@ -24,9 +24,9 @@ public struct KakaoVideoRepository {
         sort: String = "recency",
         page: Int = 1,
         size: Int = 20
-    ) async throws -> KakaoVideoResponse {
+    ) async -> Result<KakaoVideoResponse, KakaoAPIError> {
         if page > Self.maximumPage {
-            return .empty
+            return .failure(.pageOverflow)
         }
         
         assert((1...Self.maximumPage).contains(page), "Page must be between 1 and \(Self.maximumPage)")
@@ -44,7 +44,7 @@ public struct KakaoVideoRepository {
             "Authorization": "KakaoAK \(apiKey)"
         ]
         
-        let response = try await AF.request(
+        let response = await AF.request(
             requestURL,
             method: .get,
             parameters: parameters,
@@ -52,9 +52,20 @@ public struct KakaoVideoRepository {
             headers: headers
         )
         .validate()
-        .serializingDecodable(KakaoVideoResponse.self).value
+        .serializingDecodable(KakaoVideoResponse.self)
+        .response
         
-        return response
+        switch response.result {
+        case .success(let value):
+            return .success(value)
+        case .failure(let error):
+            if let httpStatusCode = response.response?.statusCode,
+                httpStatusCode == 400 {
+                return .failure(.badRequest)
+            } else {
+                return .failure(.unknowned(error))
+            }
+        }
     }
 }
 

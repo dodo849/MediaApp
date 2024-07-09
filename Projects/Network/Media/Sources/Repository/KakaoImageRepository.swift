@@ -24,9 +24,9 @@ public struct KakaoImageRepository {
         sort: String = "recency",
         page: Int = 1,
         size: Int = 20
-    ) async throws -> KakaoImageResponse {
+    ) async -> Result<KakaoImageResponse, KakaoAPIError> {
         if page > Self.maximumPage {
-            return .empty
+            return .failure(.pageOverflow)
         }
         
         assert((1...Self.maximumPage).contains(page), "Page must be between 1 and \(Self.maximumPage)")
@@ -44,17 +44,28 @@ public struct KakaoImageRepository {
             "Authorization": "KakaoAK \(apiKey)"
         ]
         
-        let response = try await AF.request(
+        let response = await AF.request(
             requestURL,
             method: .get,
             parameters: parameters,
             encoding: URLEncoding.queryString,
             headers: headers
         )
-        .validate()
-        .serializingDecodable(KakaoImageResponse.self).value
+            .validate()
+            .serializingDecodable(KakaoImageResponse.self)
+            .response
         
-        return response
+        switch response.result {
+        case .success(let value):
+            return .success(value)
+        case .failure(let error):
+            if let httpStatusCode = response.response?.statusCode,
+                httpStatusCode == 400 {
+                return .failure(.badRequest)
+            } else {
+                return .failure(.unknowned(error))
+            }
+        }
     }
 }
 
@@ -64,8 +75,8 @@ private enum KakaoImageRepositoryDependencyKey: DependencyKey {
 }
 
 public extension DependencyValues {
-  var kakaoImageRepository: KakaoImageRepository {
-    get { self[KakaoImageRepositoryDependencyKey.self] }
-    set { self[KakaoImageRepositoryDependencyKey.self] = newValue }
-  }
+    var kakaoImageRepository: KakaoImageRepository {
+        get { self[KakaoImageRepositoryDependencyKey.self] }
+        set { self[KakaoImageRepositoryDependencyKey.self] = newValue }
+    }
 }
