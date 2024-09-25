@@ -134,7 +134,7 @@ extension Project {
             infoPlist: infoPlist,
             sources: ["Sources/**"],
             resources: hasResource ? ["Resources/**"] : nil,
-            scripts: [.swiftlint],
+            scripts: [],
             dependencies: dependencies
         )
     }
